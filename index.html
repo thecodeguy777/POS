@@ -285,7 +285,7 @@ tr:nth-child(even){background:rgba(0,0,0,0.015)}
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>SKU</th><th>Medicine</th><th>Generic</th><th>Category</th><th>Unit</th><th>Price</th><th>Stock</th><th>Reorder</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>SKU</th><th>Medicine</th><th>Category</th><th>Unit</th><th>Price</th><th>Stock</th><th>Reorder</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody id="catalogTableBody"></tbody>
       </table>
     </div>
@@ -481,7 +481,7 @@ tr:nth-child(even){background:rgba(0,0,0,0.015)}
         </div>
       </div>
       <div class="form-group"><label>Medicine Name</label><input type="text" id="pName" placeholder="e.g. Biogesic"></div>
-      <div class="form-group"><label>Generic Name</label><input type="text" id="pGeneric" placeholder="e.g. Paracetamol 500mg"></div>
+      <input type="hidden" id="pGeneric" value="">
       <div class="form-row">
         <div class="form-group"><label>Brand</label><input type="text" id="pBrand" placeholder="e.g. Unilab"></div>
         <div class="form-group"><label>Unit</label>
@@ -919,7 +919,6 @@ function searchProducts(q) {
   const results = products.filter(p =>
     !p.archived &&
     (p.name.toLowerCase().includes(q.toLowerCase()) ||
-    p.generic.toLowerCase().includes(q.toLowerCase()) ||
     p.sku.toLowerCase().includes(q.toLowerCase()))
   ).slice(0, 10);
   if (results.length === 0) { el.innerHTML = '<div class="search-item"><span style="color:var(--gray)">No results found</span></div>'; el.classList.add('show'); return; }
@@ -930,7 +929,7 @@ function searchProducts(q) {
     const cls = 'search-item' + (disabled ? '' : '');
     const sty = disabled ? 'opacity:0.5' : 'cursor:pointer';
     return '<div class="' + cls + '" style="' + sty + '"' + clickAttr + '>' +
-      '<div><div class="name">' + esc(p.name) + '</div><div class="generic">' + esc(p.generic) + '</div></div>' +
+      '<div><div class="name">' + esc(p.name) + '</div></div>' +
       '<div style="text-align:right"><div class="price">' + fmt(p.price) + '</div><div class="stock">' + (disabled ? esc(status) : 'Stock: ' + getStock(p)) + '</div></div>' +
     '</div>';
   }).join('');
@@ -949,7 +948,7 @@ function addToCart(idx, sku) {
     existing.maxStock = sellable;
   } else {
     if (sellable <= 0) { toast('Out of stock!', 'error'); return; }
-    cart.push({ sku:p.sku, name:p.name, generic:p.generic, category:p.category, unit:p.unit, price:p.price, qty:1, maxStock:sellable });
+    cart.push({ sku:p.sku, name:p.name, category:p.category, unit:p.unit, price:p.price, qty:1, maxStock:sellable });
   }
   document.getElementById('searchResults').classList.remove('show');
   document.getElementById('posSearch').value = '';
@@ -1009,7 +1008,7 @@ function renderCart() {
     return;
   }
   tbody.innerHTML = cart.map((c,i) => `<tr class="cart-item">
-    <td><div class="item-name">${esc(c.name)}</div><div class="item-detail">${esc(c.generic)} | ${esc(c.unit)}</div></td>
+    <td><div class="item-name">${esc(c.name)}</div><div class="item-detail">${esc(c.unit)}</div></td>
     <td>${fmt(c.price)}</td>
     <td><div class="qty-control"><button onclick="updateQty(${i},-1)">-</button><span>${c.qty}</span><button onclick="updateQty(${i},1)">+</button></div></td>
     <td class="line-total">${fmt(c.price * c.qty)}</td>
@@ -1180,7 +1179,7 @@ function renderCatalog() {
   const cat = document.getElementById('catalogFilter')?.value || '';
   const showArchived = document.getElementById('showArchived')?.checked || false;
   const filtered = products.filter(p =>
-    (!q || p.name.toLowerCase().includes(q) || p.generic.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)) &&
+    (!q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)) &&
     (!cat || p.category === cat) &&
     (showArchived || !p.archived)
   );
@@ -1190,7 +1189,7 @@ function renderCatalog() {
       const origIdx = products.indexOf(p);
       const s = p.archived ? 'Archived' : getStatus(p);
       return `<tr style="${p.archived ? 'opacity:0.5;background:#f9f9f9' : ''}"
-        <td>${esc(p.sku)}</td><td><strong>${esc(p.name)}</strong></td><td style="font-size:0.78rem;color:var(--gray)">${esc(p.generic)}</td>
+        <td>${esc(p.sku)}</td><td><strong>${esc(p.name)}</strong></td>
         <td><span class="badge badge-blue">${esc(p.category)}</span></td><td>${esc(p.unit)}</td><td>${fmt(p.price)} <span style="cursor:pointer;opacity:0.5;font-size:0.7rem" onclick="event.stopPropagation();showPriceHistory('${p.sku}')" title="Price history">&#9776;</span></td>
         <td style="font-weight:700;cursor:pointer;${getStock(p)<=p.reorder?'color:var(--red)':''}" onclick="showBatchesModal('${p.sku}')">${getStock(p)}</td><td>${p.reorder}</td>
         <td>${getEarliestExpiry(p)}</td><td>${statusBadge(s)}</td>
