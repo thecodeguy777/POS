@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1B4F72">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RMM Pharmacy POS">
+<title>Rhea Mae Montes Pharmacy POS</title>
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Rhea%20Mae%20Montes%20Pharmacy%20POS%22%2C%22short_name%22%3A%22RMM%20POS%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F0F4F8%22%2C%22theme_color%22%3A%22%231B4F72%22%2C%22description%22%3A%22Pharmacy%20Point%20of%20Sale%20System%22%7D">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#1B4F72;--primary-light:#2980B9;--primary-dark:#154360;
+  --green:#27AE60;--green-light:#2ECC71;--green-dark:#1E8449;
+  --red:#E74C3C;--orange:#F39C12;--yellow:#F1C40F;
+  --bg:#F0F4F8;--white:#FFFFFF;--dark:#2C3E50;--gray:#7F8C8D;
+  --light-gray:#ECF0F1;--border:#D5DBDB;
+  --shadow:0 2px 8px rgba(0,0,0,0.1);--shadow-lg:0 4px 16px rgba(0,0,0,0.15);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;display:flex;flex-direction:column}
+/* Header */
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+.header h1{font-size:1.4rem;font-weight:700;letter-spacing:0.5px}
+.header .subtitle{font-size:0.75rem;opacity:0.8;margin-top:2px}
+.header .txn-badge{background:var(--green);padding:6px 14px;border-radius:20px;font-weight:700;font-size:0.85rem}
+/* Tabs */
+.tab-bar{background:var(--white);display:flex;border-bottom:2px solid var(--border);overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.tab-btn{padding:12px 20px;border:none;background:none;cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--gray);white-space:nowrap;border-bottom:3px solid transparent;transition:all 0.2s}
+.tab-btn:hover{color:var(--primary);background:rgba(41,128,185,0.05)}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);background:rgba(41,128,185,0.08)}
+/* Content */
+.content{flex:1;padding:16px;overflow-y:auto}
+.tab-content{display:none}
+.tab-content.active{display:block}
+/* Cards */
+.card{background:var(--white);border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-header{font-size:1.1rem;font-weight:700;color:var(--primary);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--light-gray)}
+/* KPI Cards */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.kpi-card{background:var(--white);border-radius:10px;padding:16px;text-align:center;box-shadow:var(--shadow);border-top:4px solid var(--primary)}
+.kpi-card.green{border-top-color:var(--green)}.kpi-card.red{border-top-color:var(--red)}.kpi-card.orange{border-top-color:var(--orange)}.kpi-card.purple{border-top-color:#8E44AD}
+.kpi-value{font-size:1.6rem;font-weight:800;color:var(--primary);margin:4px 0}
+.kpi-card.green .kpi-value{color:var(--green)}.kpi-card.red .kpi-value{color:var(--red)}.kpi-card.orange .kpi-value{color:var(--orange)}.kpi-card.purple .kpi-value{color:#8E44AD}
+.kpi-label{font-size:0.7rem;color:var(--gray);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+/* Buttons */
+.btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.85rem;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:var(--green-dark)}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#C0392B}
+.btn-orange{background:var(--orange);color:#fff}.btn-orange:hover{background:#E67E22}
+.btn-outline{background:none;border:2px solid var(--border);color:var(--dark)}.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:6px 12px;font-size:0.75rem;border-radius:6px}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+/* Forms */
+input,select,textarea{padding:10px 12px;border:2px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:inherit;width:100%;transition:border-color 0.2s}
+input:focus,select:focus{outline:none;border-color:var(--primary-light)}
+label{font-size:0.8rem;font-weight:600;color:var(--gray);margin-bottom:4px;display:block}
+.form-group{margin-bottom:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* Tables */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.85rem}
+th{background:var(--primary);color:#fff;padding:10px 12px;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--light-gray)}
+tr:hover{background:rgba(41,128,185,0.04)}
+tr:nth-child(even){background:rgba(0,0,0,0.015)}
+/* Status badges */
+.badge{padding:3px 10px;border-radius:12px;font-size:0.7rem;font-weight:700;text-transform:uppercase}
+.badge-green{background:#EAFAF1;color:var(--green)}.badge-red{background:#FDEDEC;color:var(--red)}
+.badge-orange{background:#FEF9E7;color:var(--orange)}.badge-blue{background:#EBF5FB;color:var(--primary)}
+/* POS Layout */
+.pos-layout{display:grid;grid-template-columns:1fr 380px;gap:16px;height:calc(100vh - 140px)}
+.pos-search{position:relative}
+.pos-search input{padding-left:36px;font-size:1rem}
+.pos-search::before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.9rem}
+.search-results{position:absolute;top:100%;left:0;right:0;background:var(--white);border:2px solid var(--primary-light);border-radius:0 0 8px 8px;max-height:300px;overflow-y:auto;z-index:100;box-shadow:var(--shadow-lg);display:none}
+.search-results.show{display:block}
+.search-item{padding:10px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--light-gray)}
+.search-item:hover{background:var(--bg)}
+.search-item .name{font-weight:600}.search-item .generic{font-size:0.75rem;color:var(--gray)}
+.search-item .price{font-weight:700;color:var(--green)}
+.search-item .stock{font-size:0.7rem;color:var(--gray)}
+/* Cart */
+.cart-panel{background:var(--white);border-radius:10px;box-shadow:var(--shadow);display:flex;flex-direction:column;height:100%}
+.cart-header{padding:16px;background:var(--primary);color:#fff;border-radius:10px 10px 0 0;font-weight:700;font-size:1rem;display:flex;justify-content:space-between;align-items:center}
+.cart-items{flex:1;overflow-y:auto;padding:8px}
+.cart-item{display:flex;align-items:center;padding:8px;border-bottom:1px solid var(--light-gray);gap:8px}
+.cart-item .item-info{flex:1}
+.cart-item .item-name{font-weight:600;font-size:0.85rem}
+.cart-item .item-detail{font-size:0.7rem;color:var(--gray)}
+.cart-item .qty-control{display:flex;align-items:center;gap:4px}
+.cart-item .qty-control button{width:26px;height:26px;border:1px solid var(--border);border-radius:4px;background:var(--white);cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center}
+.cart-item .qty-control button:hover{background:var(--bg)}
+.cart-item .qty-control span{min-width:24px;text-align:center;font-weight:700}
+.cart-item .line-total{font-weight:700;color:var(--primary);min-width:70px;text-align:right}
+.cart-item .remove-btn{color:var(--red);cursor:pointer;padding:4px;font-size:1.1rem;border:none;background:none}
+.cart-item .remove-btn:hover{background:var(--light-gray);border-radius:4px}
+.cart-summary{padding:12px 16px;border-top:2px solid var(--light-gray)}
+.summary-row{display:flex;justify-content:space-between;padding:4px 0;font-size:0.85rem}
+.summary-row.total{font-size:1.1rem;font-weight:800;color:var(--primary);padding:8px 0;border-top:2px solid var(--primary);margin-top:4px}
+.cart-payment{padding:12px 16px;border-top:2px solid var(--light-gray)}
+.cart-payment .form-row{grid-template-columns:1fr 1fr;gap:8px}
+.cart-actions{padding:12px 16px;display:flex;gap:8px}
+.cart-actions .btn{flex:1;justify-content:center;padding:12px;font-size:0.95rem}
+.change-display{text-align:center;padding:6px;border-radius:6px;font-weight:700;font-size:0.95rem;margin-top:6px}
+.change-ok{background:#EAFAF1;color:var(--green)}.change-bad{background:#FDEDEC;color:var(--red)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--white);border-radius:12px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--light-gray);display:flex;justify-content:space-between;align-items:center}
+.modal-header h3{font-size:1.1rem;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--gray)}
+.modal-body{padding:20px}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--light-gray);display:flex;gap:8px;justify-content:flex-end}
+/* Receipt */
+.receipt{max-width:320px;margin:0 auto;font-family:'Courier New',monospace;font-size:12px;padding:20px}
+.receipt .store-name{text-align:center;font-size:16px;font-weight:700;margin-bottom:4px}
+.receipt .store-sub{text-align:center;font-size:10px;margin-bottom:10px;color:#666}
+.receipt .divider{border-top:1px dashed #000;margin:8px 0}
+.receipt .receipt-row{display:flex;justify-content:space-between}
+.receipt .receipt-item{margin:2px 0}
+.receipt .receipt-total{font-weight:700;font-size:14px}
+.receipt .receipt-footer{text-align:center;margin-top:12px;font-size:10px;color:#666}
+/* Chart container */
+.chart-container{position:relative;height:250px;margin:12px 0}
+.chart-container canvas{width:100%!important;height:100%!important}
+/* Dashboard grid */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* Alert list */
+.alert-item{padding:8px 12px;border-left:4px solid var(--orange);margin-bottom:6px;background:#FEF9E7;border-radius:0 6px 6px 0;font-size:0.82rem}
+.alert-item.critical{border-left-color:var(--red);background:#FDEDEC}
+/* Filter bar */
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-bar input,.filter-bar select{width:auto;min-width:140px}
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;padding:14px 24px;border-radius:10px;color:#fff;font-weight:600;font-size:0.9rem;z-index:2000;animation:slideIn 0.3s ease,fadeOut 0.3s ease 2.7s;box-shadow:var(--shadow-lg)}
+.toast-success{background:var(--green)}.toast-error{background:var(--red)}.toast-info{background:var(--primary)}
+@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+/* Print */
+@media print{
+  .header,.tab-bar,.no-print{display:none!important}
+  .content{padding:0}
+  .tab-content{display:none!important}
+  #receiptPrint{display:block!important}
+  body{background:#fff}
+}
+/* Responsive */
+@media(max-width:900px){
+  .pos-layout{grid-template-columns:1fr;height:auto}
+  .dash-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+/* Empty state */
+.empty-state{text-align:center;padding:40px;color:var(--gray)}
+.empty-state .icon{font-size:3rem;margin-bottom:12px}
+/* Searchable dropdown */
+.sdrop{position:relative;width:100%}
+.sdrop-input{padding:10px 12px;border:2px solid var(--border);border-radius:8px;font-size:0.9rem;width:100%;font-family:inherit;cursor:pointer;background:var(--white);transition:border-color 0.2s}
+.sdrop-input:focus{outline:none;border-color:var(--primary-light)}
+.sdrop-list{position:absolute;top:100%;left:0;right:0;background:var(--white);border:2px solid var(--primary-light);border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:var(--shadow-lg);display:none}
+.sdrop.open .sdrop-list{display:block}
+.sdrop-item{padding:8px 12px;cursor:pointer;font-size:0.85rem;border-bottom:1px solid var(--light-gray)}
+.sdrop-item:hover,.sdrop-item.highlighted{background:var(--bg);color:var(--primary)}
+.sdrop-item .sub{font-size:0.72rem;color:var(--gray)}
+.sdrop-empty{padding:8px 12px;color:var(--gray);font-size:0.85rem}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Rhea Mae Montes Pharmacy</h1>
+    <div class="subtitle">Point of Sale System</div>
+  </div>
+  <div class="txn-badge" id="txnBadge">TXN-0001</div>
+</div>
+
+<div class="tab-bar no-print">
+  <button class="tab-btn active" onclick="switchTab('pos')">POS</button>
+  <button class="tab-btn" onclick="switchTab('catalog')">Product Catalog</button>
+  <button class="tab-btn" onclick="switchTab('sales')">Sales Log</button>
+  <button class="tab-btn" onclick="switchTab('inventory')">Inventory</button>
+  <button class="tab-btn" onclick="switchTab('dashboard')">Dashboard</button>
+  <button class="tab-btn" onclick="switchTab('stock')">Stock</button>
+  <button class="tab-btn" onclick="switchTab('backup')">Backup & Settings</button>
+</div>
+
+<div class="content">
+
+<!-- ===== POS TAB ===== -->
+<div class="tab-content active" id="tab-pos">
+  <div id="posAlerts" style="margin-bottom:8px"></div>
+  <div class="pos-layout">
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <div class="pos-search" style="flex:1">
+            <input type="text" id="posSearch" placeholder="Search medicine name..." autocomplete="off" oninput="searchProducts(this.value)" onfocus="searchProducts(this.value)">
+            <div class="search-results" id="searchResults"></div>
+          </div>
+          <div style="display:flex;gap:4px;min-width:200px">
+            <input type="text" id="skuEntry" placeholder="SKU / Barcode" autocomplete="off" style="font-weight:700;letter-spacing:0.5px" onkeydown="if(event.key==='Enter'){addBySku();event.preventDefault();}">
+            <button class="btn btn-primary btn-sm" onclick="addBySku()" style="white-space:nowrap">+ Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Cart Items</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Medicine</th><th>Price</th><th>Qty</th><th>Total</th><th></th></tr></thead>
+            <tbody id="cartTableBody">
+              <tr><td colspan="5" class="empty-state"><div class="icon">🛒</div>Search and add items above</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="cart-panel">
+      <div class="cart-header">
+        <span>Transaction Summary</span>
+        <span id="cartCount">0 items</span>
+      </div>
+      <div class="cart-summary" style="flex:1;overflow-y:auto">
+        <div class="form-group" style="margin-bottom:8px">
+          <label>Customer Name (Optional)</label>
+          <input type="text" id="customerName" placeholder="Walk-in">
+        </div>
+        <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">₱0.00</span></div>
+        <div class="form-group" style="margin:8px 0">
+          <label>Discount Type</label>
+          <select id="discountType" onchange="updateCartSummary()">
+            <option value="none">None</option>
+            <option value="senior">Senior/PWD (20%)</option>
+            <option value="employee">Employee (10%)</option>
+            <option value="promo">Promo (5%)</option>
+          </select>
+        </div>
+        <div class="summary-row"><span>Discount</span><span id="sumDiscount">-₱0.00</span></div>
+        <div class="summary-row"><span>Net Amount</span><span id="sumNet">₱0.00</span></div>
+        <div class="summary-row"><span>VAT (12%)</span><span id="sumVat">₱0.00</span></div>
+        <div class="summary-row total"><span>GRAND TOTAL</span><span id="sumTotal">₱0.00</span></div>
+      </div>
+      <div class="cart-payment">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select id="paymentMethod">
+              <option>Cash</option><option>GCash</option><option>Card</option><option>Bank Transfer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Amount Tendered</label>
+            <input type="number" id="amountTendered" placeholder="0.00" min="0" step="0.01" oninput="updateCartSummary()">
+          </div>
+        </div>
+        <div id="changeDisplay" class="change-display hidden"></div>
+      </div>
+      <div class="cart-actions">
+        <button class="btn btn-outline" onclick="clearCart()">Clear</button>
+        <button class="btn btn-green" id="completeSaleBtn" onclick="completeSale()" disabled>Complete Sale</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CATALOG TAB ===== -->
+<div class="tab-content" id="tab-catalog">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="card-header" style="margin-bottom:0;border:none;padding:0">Product Catalog</div>
+      <button class="btn btn-primary" onclick="showAddProduct()">+ Add Product</button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="catalogSearch" placeholder="Search products..." oninput="renderCatalog()" style="flex:1">
+      <select id="catalogFilter" onchange="renderCatalog()">
+        <option value="">All Categories</option>
+        <option>OTC</option><option>Prescription</option><option>Supplement</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;margin:0"><input type="checkbox" id="showArchived" onchange="renderCatalog()"> Show Archived</label>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>SKU</th><th>Medicine</th><th>Generic</th><th>Category</th><th>Unit</th><th>Price</th><th>Stock</th><th>Reorder</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="catalogTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SALES LOG TAB ===== -->
+<div class="tab-content" id="tab-sales">
+  <div class="card">
+    <div class="card-header">Sales Log</div>
+    <div class="filter-bar">
+      <input type="date" id="salesDateFrom" onchange="renderSalesLog()">
+      <span style="color:var(--gray)">to</span>
+      <input type="date" id="salesDateTo" onchange="renderSalesLog()">
+      <select id="salesPayFilter" onchange="renderSalesLog()">
+        <option value="">All Payments</option>
+        <option>Cash</option><option>GCash</option><option>Card</option><option>Bank Transfer</option>
+      </select>
+      <input type="text" id="salesSearch" placeholder="Search TXN#, customer, item..." oninput="renderSalesLog()" style="flex:1">
+      <button class="btn btn-sm btn-primary" onclick="quickReceiptLookup()">Lookup Receipt</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>TXN#</th><th>Date</th><th>Time</th><th>Customer</th><th>Items</th><th>Qty</th><th>Total</th><th>Payment</th><th>Actions</th></tr></thead>
+        <tbody id="salesTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== INVENTORY TAB ===== -->
+<div class="tab-content" id="tab-inventory">
+  <div id="inventoryKpis" class="kpi-row"></div>
+  <div class="card">
+    <div class="card-header">Inventory Status</div>
+    <div class="filter-bar">
+      <input type="text" id="invSearch" placeholder="Search..." oninput="renderInventory()" style="flex:1">
+      <select id="invFilter" onchange="renderInventory()">
+        <option value="">All Status</option>
+        <option>In Stock</option><option>Low Stock</option><option>Out of Stock</option><option>Expired</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>SKU</th><th>Medicine</th><th>Stock</th><th>Reorder Level</th><th>Status</th><th>Expiry</th><th>Days Left</th><th>Stock Value</th><th>Actions</th></tr></thead>
+        <tbody id="inventoryTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD TAB ===== -->
+<div class="tab-content" id="tab-dashboard">
+  <div id="dashKpis" class="kpi-row"></div>
+  <div class="dash-grid">
+    <div class="card">
+      <div class="card-header">Sales by Payment Method</div>
+      <div class="chart-container"><canvas id="chartPayment"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Sales by Category</div>
+      <div class="chart-container"><canvas id="chartCategory"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Daily Sales (Last 14 Days)</div>
+      <div class="chart-container"><canvas id="chartDaily"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Top 10 Best Sellers</div>
+      <div id="topSellers"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Alerts & Warnings</div>
+    <div id="dashAlerts"></div>
+  </div>
+</div>
+
+<!-- ===== STOCK TAB ===== -->
+<div class="tab-content" id="tab-stock">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="font-size:1.1rem;font-weight:700;color:var(--primary)">Stock Management</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-green" onclick="showReceiveStock()">+ Receive Stock</button>
+      <button class="btn btn-orange" onclick="showStockAdjustment()">Adjust Stock</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Starting / Ending Balance</div>
+    <div class="filter-bar">
+      <select id="balancePeriodType" onchange="renderBalanceReport()">
+        <option value="daily">Daily</option>
+        <option value="monthly">Monthly</option>
+      </select>
+      <input type="date" id="balancePeriodDate" onchange="renderBalanceReport()">
+      <input type="month" id="balancePeriodMonth" onchange="renderBalanceReport()" style="display:none">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>SKU</th><th>Medicine</th><th>Starting</th><th>Received</th><th>Sold</th><th>Adjustments</th><th>Ending</th></tr></thead>
+        <tbody id="balanceTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Stock Movement Log</div>
+    <div class="filter-bar">
+      <select id="mlTypeFilter" onchange="renderMovementLog()">
+        <option value="">All Types</option>
+        <option value="SALE">Sale</option>
+        <option value="VOID">Void</option>
+        <option value="RECEIVE">Receive</option>
+        <option value="ADJUSTMENT">Adjustment</option>
+      </select>
+      <input type="text" id="mlSearch" placeholder="Search product/reference..." oninput="renderMovementLog()" style="flex:1">
+      <input type="date" id="mlDateFrom" onchange="renderMovementLog()">
+      <span style="color:var(--gray)">to</span>
+      <input type="date" id="mlDateTo" onchange="renderMovementLog()">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Time</th><th>SKU</th><th>Medicine</th><th>Type</th><th>Qty</th><th>Batch</th><th>Reference</th><th>Balance</th></tr></thead>
+        <tbody id="movementLogBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BACKUP TAB ===== -->
+<div class="tab-content" id="tab-backup">
+  <div class="card" style="border-left:4px solid var(--green)">
+    <div class="card-header" style="color:var(--green)">Auto-Backup (Recommended)</div>
+    <p style="color:var(--gray);font-size:0.85rem;margin-bottom:12px">Automatically saves a backup file to a local folder after every transaction. If your browser data is cleared, the app can restore from these files.</p>
+    <div id="autoBackupStatus" style="margin-bottom:12px"></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-green" id="btnSetupAutoBackup" onclick="setupAutoBackup()">Enable Auto-Backup</button>
+      <button class="btn btn-primary" onclick="restoreFromAutoBackup()">Restore from Backup Folder</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">Manual Backup & Restore</div>
+    <p style="color:var(--gray);font-size:0.85rem;margin-bottom:16px">Your data is stored in the browser's localStorage. Export backups regularly to prevent data loss.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+      <button class="btn btn-primary" onclick="exportBackup()">Export Full Backup (.json)</button>
+      <button class="btn btn-green" onclick="document.getElementById('importFile').click()">Import Backup (.json)</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
+      <button class="btn btn-orange" onclick="exportCSV()">Export Sales to CSV</button>
+    </div>
+    <div id="backupStatus" style="margin-bottom:16px"></div>
+  </div>
+  <div class="card">
+    <div class="card-header">Settings</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Store Name</label>
+        <input type="text" id="settingStoreName" value="Rhea Mae Montes Pharmacy" onchange="saveSettings()">
+      </div>
+      <div class="form-group">
+        <label>VAT Rate (%)</label>
+        <input type="number" id="settingVat" value="12" min="0" max="100" step="0.1" onchange="saveSettings()">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label>Data Summary</label>
+      <div id="dataSummary" style="font-size:0.85rem;color:var(--gray)"></div>
+    </div>
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--light-gray)">
+      <button class="btn btn-red btn-sm" onclick="if(confirm('⚠️ This will DELETE ALL DATA permanently. Are you absolutely sure?'))resetAllData()">Reset All Data</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- Hidden receipt print area -->
+<div id="receiptPrint" style="display:none"></div>
+
+<!-- Product Modal -->
+<div class="modal-overlay hidden" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="productModalTitle">Add Product</h3>
+      <button class="modal-close" onclick="closeModal('productModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProductIdx">
+      <div class="form-row">
+        <div class="form-group"><label>SKU</label><input type="text" id="pSku" placeholder="SKU-036"></div>
+        <div class="form-group"><label>Category</label>
+          <select id="pCategory"><option>OTC</option><option>Prescription</option><option>Supplement</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Medicine Name</label><input type="text" id="pName" placeholder="e.g. Biogesic"></div>
+      <div class="form-group"><label>Generic Name</label><input type="text" id="pGeneric" placeholder="e.g. Paracetamol 500mg"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Brand</label><input type="text" id="pBrand" placeholder="e.g. Unilab"></div>
+        <div class="form-group"><label>Unit</label>
+          <select id="pUnit"><option>Tablet</option><option>Capsule</option><option>Bottle</option><option>Box</option><option>Tube</option><option>Sachet</option><option>Vial</option><option>Nebule</option><option>Lozenge</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Unit Price (₱)</label><input type="number" id="pPrice" min="0" step="0.01"></div>
+        <div class="form-group"><label>Stock Qty</label><input type="number" id="pStock" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Reorder Level</label><input type="number" id="pReorder" min="0"></div>
+        <div class="form-group"><label>Expiry Date</label><input type="date" id="pExpiry"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('productModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receipt Modal -->
+<div class="modal-overlay hidden" id="receiptModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h3>Transaction Receipt</h3>
+      <button class="modal-close" onclick="closeModal('receiptModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="receiptContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('receiptModal')">Close</button>
+      <button class="btn btn-primary" onclick="printReceipt()">Print Receipt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Price History Modal -->
+<div class="modal-overlay hidden" id="priceHistoryModal">
+  <div class="modal" style="max-width:450px">
+    <div class="modal-header">
+      <h3 id="priceHistoryTitle">Price History</h3>
+      <button class="modal-close" onclick="closeModal('priceHistoryModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="priceHistoryContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('priceHistoryModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Batch Viewer Modal -->
+<div class="modal-overlay hidden" id="batchesModal">
+  <div class="modal" style="max-width:550px">
+    <div class="modal-header">
+      <h3 id="batchesModalTitle">Batch Details</h3>
+      <button class="modal-close" onclick="closeModal('batchesModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="batchesContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('batchesModal')">Close</button>
+      <button class="btn btn-primary" onclick="closeModal('batchesModal');showReceiveStock(window._batchesModalSku)">Receive Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receive Stock Modal -->
+<div class="modal-overlay hidden" id="receiveStockModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Receive Stock</h3>
+      <button class="modal-close" onclick="closeModal('receiveStockModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Product</label>
+        <div id="rsProduct"></div>
+      </div>
+      <div id="rsCurrentInfo" style="font-size:0.82rem;color:var(--gray);margin-bottom:12px"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Batch Quantity</label><input type="number" id="rsQty" min="1" placeholder="0"></div>
+        <div class="form-group"><label>Expiry Date</label><input type="date" id="rsExpiry"></div>
+      </div>
+      <div class="form-group">
+        <label>Supplier Cost per Unit (optional)</label>
+        <input type="number" id="rsCost" min="0" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('receiveStockModal')">Cancel</button>
+      <button class="btn btn-green" onclick="submitReceiveStock()">Receive Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stock Adjustment Modal -->
+<div class="modal-overlay hidden" id="adjustStockModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Stock Adjustment</h3>
+      <button class="modal-close" onclick="closeModal('adjustStockModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Product</label>
+        <div id="adjProduct"></div>
+      </div>
+      <div id="adjCurrentInfo" style="font-size:0.82rem;color:var(--gray);margin-bottom:12px"></div>
+      <div class="form-group">
+        <label>Batch</label>
+        <select id="adjBatch" style="font-weight:600"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>New Quantity for Batch</label><input type="number" id="adjNewQty" min="0" placeholder="0"></div>
+        <div class="form-group"><label>Reason</label>
+          <select id="adjReason">
+            <option>Damaged</option><option>Expired Disposal</option><option>Manual Count Correction</option><option>Returned to Supplier</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Notes (optional)</label><input type="text" id="adjNotes" placeholder="Additional details..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('adjustStockModal')">Cancel</button>
+      <button class="btn btn-orange" onclick="submitStockAdjustment()">Apply Adjustment</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════
+const KEYS = {
+  products:'pharmacyPOS_products', transactions:'pharmacyPOS_transactions', settings:'pharmacyPOS_settings',
+  movementLog:'pharmacyPOS_movementLog', priceHistory:'pharmacyPOS_priceHistory', balanceSnaps:'pharmacyPOS_balanceSnaps'
+};
+
+function loadData(key) { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
+function saveData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+
+function getProducts() { return loadData(KEYS.products) || []; }
+function saveProducts(p) { saveData(KEYS.products, p); }
+function getTransactions() { return loadData(KEYS.transactions) || []; }
+function saveTransactions(t) { saveData(KEYS.transactions, t); }
+function getSettings() { return loadData(KEYS.settings) || { storeName:'Rhea Mae Montes Pharmacy', vatRate:12, nextTxnNum:1, lastBackupTxnCount:0 }; }
+function saveSettingsData(s) { saveData(KEYS.settings, s); }
+function getMovementLog() { return loadData(KEYS.movementLog) || []; }
+function saveMovementLog(log) { saveData(KEYS.movementLog, log); }
+function getPriceHistory() { return loadData(KEYS.priceHistory) || []; }
+function savePriceHistory(h) { saveData(KEYS.priceHistory, h); }
+function getBalanceSnaps() { return loadData(KEYS.balanceSnaps) || []; }
+function saveBalanceSnaps(s) { saveData(KEYS.balanceSnaps, s); }
+
+// ═══════════════════════════════════════
+// DEFAULT PRODUCTS
+// ═══════════════════════════════════════
+const DEFAULT_PRODUCTS = [];
+
+function initData() {
+  if (!loadData(KEYS.products)) saveProducts(DEFAULT_PRODUCTS);
+  if (!loadData(KEYS.transactions)) saveTransactions([]);
+  if (!loadData(KEYS.settings)) saveSettingsData({ storeName:'Rhea Mae Montes Pharmacy', vatRate:12, nextTxnNum:1, lastBackupTxnCount:0 });
+  migrateData();
+  captureBalanceSnapshot();
+}
+
+// ═══════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════
+const fmt = (n) => '₱' + Number(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const today = () => new Date().toISOString().split('T')[0];
+const now = () => new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',hour12:true});
+const daysBetween = (d) => { const diff = new Date(d) - new Date(today()); return Math.ceil(diff/(1000*60*60*24)); };
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// Searchable Dropdown
+function initSearchDrop(containerId, options, onChange, placeholder) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  container.className = 'sdrop';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'sdrop-input';
+  input.placeholder = placeholder || 'Search...';
+  input.setAttribute('autocomplete', 'off');
+  const list = document.createElement('div');
+  list.className = 'sdrop-list';
+  container.appendChild(input);
+  container.appendChild(list);
+  container._sdValue = '';
+  container._sdOptions = options;
+
+  function render(filter) {
+    const q = (filter || '').toLowerCase();
+    const filtered = options.filter(o => !q || o.label.toLowerCase().includes(q) || (o.sub || '').toLowerCase().includes(q));
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="sdrop-empty">No results</div>';
+    } else {
+      list.innerHTML = filtered.map(o =>
+        '<div class="sdrop-item" data-value="' + esc(o.value) + '"><div>' + esc(o.label) + '</div>' + (o.sub ? '<div class="sub">' + esc(o.sub) + '</div>' : '') + '</div>'
+      ).join('');
+    }
+  }
+
+  input.addEventListener('focus', function() {
+    render(input.value);
+    container.classList.add('open');
+  });
+  input.addEventListener('input', function() {
+    render(input.value);
+    container.classList.add('open');
+  });
+  list.addEventListener('mousedown', function(e) {
+    const item = e.target.closest('.sdrop-item');
+    if (!item) return;
+    const val = item.getAttribute('data-value');
+    const opt = options.find(o => o.value === val);
+    if (opt) {
+      input.value = opt.label;
+      container._sdValue = val;
+      container.classList.remove('open');
+      if (onChange) onChange(val);
+    }
+  });
+  document.addEventListener('click', function(e) {
+    if (!container.contains(e.target)) container.classList.remove('open');
+  });
+  // Auto-select first
+  if (options.length > 0) {
+    input.value = options[0].label;
+    container._sdValue = options[0].value;
+  }
+}
+function getSDValue(containerId) {
+  const c = document.getElementById(containerId);
+  return c ? c._sdValue || '' : '';
+}
+function setSDValue(containerId, val) {
+  const c = document.getElementById(containerId);
+  if (!c || !c._sdOptions) return;
+  const opt = c._sdOptions.find(o => o.value === val);
+  if (opt) {
+    c._sdValue = val;
+    const input = c.querySelector('.sdrop-input');
+    if (input) input.value = opt.label;
+  }
+}
+
+// ═══════════════════════════════════════
+// BATCH HELPERS
+// ═══════════════════════════════════════
+function getStock(p) {
+  if (p.batches && p.batches.length > 0) return p.batches.reduce((s, b) => s + (b.qty || 0), 0);
+  return p.stock || 0;
+}
+function getEarliestExpiry(p) {
+  if (p.batches && p.batches.length > 0) {
+    const active = p.batches.filter(b => b.qty > 0 && b.expiry);
+    if (active.length === 0) return p.batches[0]?.expiry || p.expiry || '';
+    active.sort((a, b) => a.expiry.localeCompare(b.expiry));
+    return active[0].expiry;
+  }
+  return p.expiry || '';
+}
+function getActiveBatchesFEFO(p) {
+  if (!p.batches) return [];
+  return p.batches.filter(b => b.qty > 0 && daysBetween(b.expiry) >= 0)
+    .sort((a, b) => a.expiry.localeCompare(b.expiry));
+}
+function getSellableStock(p) {
+  return getActiveBatchesFEFO(p).reduce((s, b) => s + b.qty, 0);
+}
+
+// ═══════════════════════════════════════
+// MOVEMENT LOG & PRICE HISTORY UTILITIES
+// ═══════════════════════════════════════
+function addMovementEntry(entry) {
+  const log = getMovementLog();
+  entry.id = 'ML-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+  entry.date = entry.date || today();
+  entry.time = entry.time || now();
+  log.push(entry);
+  saveMovementLog(log);
+}
+function addPriceHistoryEntry(sku, productName, oldPrice, newPrice) {
+  const h = getPriceHistory();
+  h.push({ date: today(), time: now(), sku, productName, oldPrice, newPrice });
+  savePriceHistory(h);
+}
+
+// ═══════════════════════════════════════
+// FEFO DEDUCTION & RESTORE
+// ═══════════════════════════════════════
+function deductStockFEFO(products, sku, qty, txnId) {
+  const p = products.find(x => x.sku === sku);
+  if (!p || !p.batches) return [];
+  const batches = p.batches.filter(b => b.qty > 0 && daysBetween(b.expiry) >= 0)
+    .sort((a, b) => a.expiry.localeCompare(b.expiry));
+  let remaining = qty;
+  const deductions = [];
+  for (const batch of batches) {
+    if (remaining <= 0) break;
+    const take = Math.min(batch.qty, remaining);
+    batch.qty -= take;
+    remaining -= take;
+    deductions.push({ batchId: batch.id, qty: take, expiry: batch.expiry });
+    addMovementEntry({
+      sku, productName: p.name, type: 'SALE', qty: -take,
+      batchId: batch.id, reference: txnId, reason: null,
+      balanceAfter: getStock(p)
+    });
+  }
+  return deductions;
+}
+
+function restoreStock(products, sku, batchDeductions, txnId) {
+  const p = products.find(x => x.sku === sku);
+  if (!p || !p.batches || !batchDeductions) return;
+  batchDeductions.forEach(d => {
+    const batch = p.batches.find(b => b.id === d.batchId);
+    if (batch) {
+      batch.qty += d.qty;
+    } else {
+      p.batches.push({ id: d.batchId, qty: d.qty, expiry: d.expiry || '', supplierCost: null, receivedDate: 'restored' });
+    }
+    addMovementEntry({
+      sku, productName: p.name, type: 'VOID', qty: d.qty,
+      batchId: d.batchId, reference: txnId, reason: 'Transaction voided',
+      balanceAfter: getStock(p)
+    });
+  });
+}
+
+// ═══════════════════════════════════════
+// DATA MIGRATION
+// ═══════════════════════════════════════
+function migrateData() {
+  const products = getProducts();
+  let migrated = false;
+  products.forEach(p => {
+    if (!p.batches) {
+      p.batches = [{
+        id: 'B-LEGACY-' + p.sku,
+        qty: p.stock || 0,
+        expiry: p.expiry || '',
+        supplierCost: null,
+        receivedDate: 'migrated'
+      }];
+      migrated = true;
+    }
+  });
+  if (migrated) saveProducts(products);
+}
+
+// ═══════════════════════════════════════
+// BALANCE SNAPSHOTS
+// ═══════════════════════════════════════
+function captureBalanceSnapshot() {
+  const snaps = getBalanceSnaps();
+  const todayStr = today();
+  const monthStr = todayStr.substring(0, 7);
+  const products = getProducts();
+  const balances = {};
+  products.forEach(p => { balances[p.sku] = getStock(p); });
+  // Daily snapshot
+  if (!snaps.find(s => s.type === 'daily' && s.period === todayStr)) {
+    snaps.push({ date: todayStr, type: 'daily', period: todayStr, balances });
+  }
+  // Monthly snapshot
+  if (!snaps.find(s => s.type === 'monthly' && s.period === monthStr)) {
+    snaps.push({ date: todayStr, type: 'monthly', period: monthStr, balances });
+  }
+  saveBalanceSnaps(snaps);
+}
+
+function getStatus(product) {
+  const expiry = getEarliestExpiry(product);
+  const stock = getStock(product);
+  if (expiry && daysBetween(expiry) < 0) return 'Expired';
+  if (stock <= 0) return 'Out of Stock';
+  if (stock <= product.reorder) return 'Low Stock';
+  return 'In Stock';
+}
+function statusBadge(s) {
+  const m = {'In Stock':'badge-green','Low Stock':'badge-orange','Out of Stock':'badge-red','Expired':'badge-red','Expiring Soon':'badge-orange','Archived':'badge-blue'};
+  return `<span class="badge ${m[s]||'badge-blue'}">${s}</span>`;
+}
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ═══════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════
+function refreshAll() {
+  const active = document.querySelector('.tab-content.active');
+  if (active) {
+    const id = active.id.replace('tab-', '');
+    if (id==='pos') renderPosAlerts();
+    if (id==='catalog') renderCatalog();
+    if (id==='inventory') renderInventory();
+    if (id==='dashboard') renderDashboard();
+    if (id==='stock') renderStockTab();
+    if (id==='backup') renderBackup();
+  }
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', b.getAttribute('onclick').includes(id)));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-'+id));
+  if (id==='pos') renderPosAlerts();
+  if (id==='catalog') renderCatalog();
+  if (id==='sales') renderSalesLog();
+  if (id==='inventory') renderInventory();
+  if (id==='dashboard') renderDashboard();
+  if (id==='stock') renderStockTab();
+  if (id==='backup') renderBackup();
+}
+
+// ═══════════════════════════════════════
+// POS - CART
+// ═══════════════════════════════════════
+let cart = [];
+
+function searchProducts(q) {
+  const el = document.getElementById('searchResults');
+  if (!q || q.length < 1) { el.classList.remove('show'); return; }
+  const products = getProducts();
+  const results = products.filter(p =>
+    !p.archived &&
+    (p.name.toLowerCase().includes(q.toLowerCase()) ||
+    p.generic.toLowerCase().includes(q.toLowerCase()) ||
+    p.sku.toLowerCase().includes(q.toLowerCase()))
+  ).slice(0, 10);
+  if (results.length === 0) { el.innerHTML = '<div class="search-item"><span style="color:var(--gray)">No results found</span></div>'; el.classList.add('show'); return; }
+  el.innerHTML = results.map((p,i) => {
+    const status = getStatus(p);
+    const disabled = status === 'Out of Stock' || status === 'Expired';
+    const clickAttr = disabled ? '' : ' onclick="addToCart(' + i + ',\'' + p.sku + '\')"';
+    const cls = 'search-item' + (disabled ? '' : '');
+    const sty = disabled ? 'opacity:0.5' : 'cursor:pointer';
+    return '<div class="' + cls + '" style="' + sty + '"' + clickAttr + '>' +
+      '<div><div class="name">' + esc(p.name) + '</div><div class="generic">' + esc(p.generic) + '</div></div>' +
+      '<div style="text-align:right"><div class="price">' + fmt(p.price) + '</div><div class="stock">' + (disabled ? esc(status) : 'Stock: ' + getStock(p)) + '</div></div>' +
+    '</div>';
+  }).join('');
+  el.classList.add('show');
+}
+
+function addToCart(idx, sku) {
+  const products = getProducts();
+  const p = products.find(x => x.sku === sku);
+  if (!p) return;
+  const existing = cart.find(c => c.sku === sku);
+  const sellable = getSellableStock(p);
+  if (existing) {
+    if (existing.qty >= sellable) { toast('Not enough stock!', 'error'); return; }
+    existing.qty++;
+    existing.maxStock = sellable;
+  } else {
+    if (sellable <= 0) { toast('Out of stock!', 'error'); return; }
+    cart.push({ sku:p.sku, name:p.name, generic:p.generic, category:p.category, unit:p.unit, price:p.price, qty:1, maxStock:sellable });
+  }
+  document.getElementById('searchResults').classList.remove('show');
+  document.getElementById('posSearch').value = '';
+  renderCart();
+}
+
+function renderPosAlerts() {
+  const products = getProducts().filter(p => !p.archived);
+  const alerts = [];
+  products.forEach(p => {
+    const s = getStatus(p);
+    if (s === 'Out of Stock') alerts.push({ text: esc(p.name) + ' — OUT OF STOCK', critical: true });
+    else if (s === 'Low Stock') alerts.push({ text: esc(p.name) + ' — Low stock: ' + getStock(p) + ' left (reorder at ' + p.reorder + ')', critical: false });
+    else if (s === 'Expired') alerts.push({ text: esc(p.name) + ' — EXPIRED', critical: true });
+  });
+  const el = document.getElementById('posAlerts');
+  if (alerts.length === 0) { el.innerHTML = ''; return; }
+  const critical = alerts.filter(a => a.critical);
+  const warnings = alerts.filter(a => !a.critical);
+  const shown = [...critical, ...warnings].slice(0, 5);
+  const extra = alerts.length - shown.length;
+  el.innerHTML = shown.map(a => '<div class="alert-item ' + (a.critical ? 'critical' : '') + '">' + a.text + '</div>').join('') +
+    (extra > 0 ? '<div style="font-size:0.75rem;color:var(--gray);padding:4px 12px">+' + extra + ' more alerts (see Inventory tab)</div>' : '');
+}
+
+function addBySku() {
+  const input = document.getElementById('skuEntry');
+  const sku = input.value.trim().toUpperCase();
+  if (!sku) return;
+  const products = getProducts();
+  const p = products.find(x => x.sku.toUpperCase() === sku);
+  if (!p) { toast('Product not found: ' + sku, 'error'); input.select(); return; }
+  if (p.archived) { toast(p.name + ' is archived', 'error'); input.select(); return; }
+  const status = getStatus(p);
+  if (status === 'Out of Stock' || status === 'Expired') { toast(p.name + ' is ' + status.toLowerCase() + '!', 'error'); input.select(); return; }
+  addToCart(0, p.sku);
+  input.value = '';
+  input.focus();
+}
+
+function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
+
+function updateQty(idx, delta) {
+  cart[idx].qty += delta;
+  if (cart[idx].qty <= 0) cart.splice(idx, 1);
+  else if (cart[idx].qty > cart[idx].maxStock) { cart[idx].qty = cart[idx].maxStock; toast('Max stock reached', 'info'); }
+  renderCart();
+}
+
+function renderCart() {
+  const tbody = document.getElementById('cartTableBody');
+  if (cart.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="icon">🛒</div>Search and add items above</td></tr>';
+    document.getElementById('cartCount').textContent = '0 items';
+    document.getElementById('completeSaleBtn').disabled = true;
+    updateCartSummary();
+    return;
+  }
+  tbody.innerHTML = cart.map((c,i) => `<tr class="cart-item">
+    <td><div class="item-name">${esc(c.name)}</div><div class="item-detail">${esc(c.generic)} | ${esc(c.unit)}</div></td>
+    <td>${fmt(c.price)}</td>
+    <td><div class="qty-control"><button onclick="updateQty(${i},-1)">-</button><span>${c.qty}</span><button onclick="updateQty(${i},1)">+</button></div></td>
+    <td class="line-total">${fmt(c.price * c.qty)}</td>
+    <td><button class="remove-btn" onclick="removeFromCart(${i})">&times;</button></td>
+  </tr>`).join('');
+  document.getElementById('cartCount').textContent = cart.length + ' item' + (cart.length>1?'s':'');
+  document.getElementById('completeSaleBtn').disabled = false;
+  updateCartSummary();
+}
+
+function updateCartSummary() {
+  const subtotal = cart.reduce((s,c) => s + c.price * c.qty, 0);
+  const discType = document.getElementById('discountType').value;
+  const discRates = { none:0, senior:0.20, employee:0.10, promo:0.05 };
+  const discAmt = subtotal * (discRates[discType] || 0);
+  const net = subtotal - discAmt;
+  const settings = getSettings();
+  const vat = net * (settings.vatRate / 100);
+  const total = net + vat;
+  const tendered = parseFloat(document.getElementById('amountTendered').value) || 0;
+
+  document.getElementById('sumSubtotal').textContent = fmt(subtotal);
+  document.getElementById('sumDiscount').textContent = '-' + fmt(discAmt);
+  document.getElementById('sumNet').textContent = fmt(net);
+  document.getElementById('sumVat').textContent = fmt(vat);
+  document.getElementById('sumTotal').textContent = fmt(total);
+
+  const changeEl = document.getElementById('changeDisplay');
+  if (tendered > 0 && cart.length > 0) {
+    changeEl.classList.remove('hidden');
+    if (tendered >= total) {
+      changeEl.className = 'change-display change-ok';
+      changeEl.textContent = 'Change: ' + fmt(tendered - total);
+    } else {
+      changeEl.className = 'change-display change-bad';
+      changeEl.textContent = 'Insufficient: need ' + fmt(total - tendered) + ' more';
+    }
+  } else { changeEl.classList.add('hidden'); }
+}
+
+function clearCart() {
+  cart = [];
+  document.getElementById('customerName').value = '';
+  document.getElementById('discountType').value = 'none';
+  document.getElementById('paymentMethod').value = 'Cash';
+  document.getElementById('amountTendered').value = '';
+  renderCart();
+}
+
+function completeSale() {
+  if (cart.length === 0) return;
+  const subtotal = cart.reduce((s,c) => s + c.price * c.qty, 0);
+  const discType = document.getElementById('discountType').value;
+  const discLabels = { none:'None', senior:'Senior/PWD (20%)', employee:'Employee (10%)', promo:'Promo (5%)' };
+  const discRates = { none:0, senior:0.20, employee:0.10, promo:0.05 };
+  const discAmt = subtotal * (discRates[discType] || 0);
+  const net = subtotal - discAmt;
+  const settings = getSettings();
+  const vat = net * (settings.vatRate / 100);
+  const total = net + vat;
+  const tendered = parseFloat(document.getElementById('amountTendered').value) || 0;
+  const payMethod = document.getElementById('paymentMethod').value;
+
+  if (payMethod === 'Cash' && tendered < total) { toast('Amount tendered is insufficient!', 'error'); return; }
+  const finalTendered = payMethod !== 'Cash' ? total : tendered;
+
+  const txnId = 'TXN-' + String(settings.nextTxnNum).padStart(4, '0');
+
+  // Deduct inventory using FEFO
+  const products = getProducts();
+  const txnItems = cart.map(c => {
+    const batchDeductions = deductStockFEFO(products, c.sku, c.qty, txnId);
+    return { sku:c.sku, name:c.name, qty:c.qty, price:c.price, total:c.price*c.qty, batchDeductions };
+  });
+  saveProducts(products);
+
+  const txn = {
+    id: txnId,
+    date: today(),
+    time: now(),
+    customer: document.getElementById('customerName').value || 'Walk-in',
+    items: txnItems,
+    totalQty: cart.reduce((s,c) => s + c.qty, 0),
+    subtotal, discountType: discLabels[discType], discountAmt: discAmt,
+    net, vat, total,
+    paymentMethod: payMethod, tendered: finalTendered, change: finalTendered - total
+  };
+
+  // Save transaction
+  const txns = getTransactions();
+  txns.push(txn);
+  saveTransactions(txns);
+
+  // Increment TXN number
+  settings.nextTxnNum++;
+  saveSettingsData(settings);
+  updateTxnBadge();
+
+  // Show receipt
+  showReceipt(txn);
+  toast('Sale completed! ' + txn.id, 'success');
+  clearCart();
+  renderPosAlerts();
+  checkBackupReminder();
+  autoBackupAfterChange();
+}
+
+function updateTxnBadge() {
+  const s = getSettings();
+  document.getElementById('txnBadge').textContent = 'TXN-' + String(s.nextTxnNum).padStart(4, '0');
+}
+
+// ═══════════════════════════════════════
+// RECEIPT
+// ═══════════════════════════════════════
+let currentReceipt = null;
+
+function showReceiptByIdx(idx) {
+  if (window._salesLogTxns && window._salesLogTxns[idx]) showReceipt(window._salesLogTxns[idx]);
+}
+
+function showReceipt(txn) {
+  currentReceipt = txn;
+  const s = getSettings();
+  const itemsHtml = txn.items.map(i => `
+    <div class="receipt-item">${esc(i.name)} x${i.qty}</div>
+    <div class="receipt-row"><span style="padding-left:20px">${fmt(i.price)} each</span><span>${fmt(i.total)}</span></div>
+  `).join('');
+  document.getElementById('receiptContent').innerHTML = `
+    <div class="receipt">
+      <div class="store-name">${esc(s.storeName)}</div>
+      <div class="store-sub">Official Receipt</div>
+      <div class="divider"></div>
+      <div class="receipt-row"><span>${esc(txn.id)}</span><span>${txn.date}</span></div>
+      <div class="receipt-row"><span>Time: ${txn.time}</span><span>Customer: ${esc(txn.customer)}</span></div>
+      <div class="divider"></div>
+      ${itemsHtml}
+      <div class="divider"></div>
+      <div class="receipt-row"><span>Subtotal</span><span>${fmt(txn.subtotal)}</span></div>
+      <div class="receipt-row"><span>Discount (${txn.discountType})</span><span>-${fmt(txn.discountAmt)}</span></div>
+      <div class="receipt-row"><span>VAT (${s.vatRate}%)</span><span>${fmt(txn.vat)}</span></div>
+      <div class="divider"></div>
+      <div class="receipt-row receipt-total"><span>TOTAL</span><span>${fmt(txn.total)}</span></div>
+      <div class="divider"></div>
+      <div class="receipt-row"><span>Payment: ${txn.paymentMethod}</span><span>${fmt(txn.tendered)}</span></div>
+      <div class="receipt-row"><span>Change</span><span>${fmt(txn.change)}</span></div>
+      <div class="divider"></div>
+      <div class="receipt-footer">Thank you for your purchase!<br>Get well soon!</div>
+    </div>
+  `;
+  document.getElementById('receiptModal').classList.remove('hidden');
+}
+
+function printReceipt() {
+  if (!currentReceipt) return;
+  document.getElementById('receiptPrint').innerHTML = document.getElementById('receiptContent').innerHTML;
+  document.getElementById('receiptPrint').style.display = 'block';
+  window.print();
+  setTimeout(() => { document.getElementById('receiptPrint').style.display = 'none'; }, 500);
+}
+
+// ═══════════════════════════════════════
+// PRODUCT CATALOG
+// ═══════════════════════════════════════
+function renderCatalog() {
+  const products = getProducts();
+  const q = (document.getElementById('catalogSearch')?.value || '').toLowerCase();
+  const cat = document.getElementById('catalogFilter')?.value || '';
+  const showArchived = document.getElementById('showArchived')?.checked || false;
+  const filtered = products.filter(p =>
+    (!q || p.name.toLowerCase().includes(q) || p.generic.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)) &&
+    (!cat || p.category === cat) &&
+    (showArchived || !p.archived)
+  );
+  document.getElementById('catalogTableBody').innerHTML = filtered.length === 0 ?
+    '<tr><td colspan="11" class="empty-state">No products found</td></tr>' :
+    filtered.map((p, i) => {
+      const origIdx = products.indexOf(p);
+      const s = p.archived ? 'Archived' : getStatus(p);
+      return `<tr style="${p.archived ? 'opacity:0.5;background:#f9f9f9' : ''}"
+        <td>${esc(p.sku)}</td><td><strong>${esc(p.name)}</strong></td><td style="font-size:0.78rem;color:var(--gray)">${esc(p.generic)}</td>
+        <td><span class="badge badge-blue">${esc(p.category)}</span></td><td>${esc(p.unit)}</td><td>${fmt(p.price)} <span style="cursor:pointer;opacity:0.5;font-size:0.7rem" onclick="event.stopPropagation();showPriceHistory('${p.sku}')" title="Price history">&#9776;</span></td>
+        <td style="font-weight:700;cursor:pointer;${getStock(p)<=p.reorder?'color:var(--red)':''}" onclick="showBatchesModal('${p.sku}')">${getStock(p)}</td><td>${p.reorder}</td>
+        <td>${getEarliestExpiry(p)}</td><td>${statusBadge(s)}</td>
+        <td><button class="btn btn-sm btn-outline" onclick="editProduct(${origIdx})">Edit</button>
+        ${p.archived
+          ? '<button class="btn btn-sm btn-green" onclick="unarchiveProduct('+origIdx+')">Restore</button> <button class="btn btn-sm btn-red" onclick="deleteProduct('+origIdx+')">Delete</button>'
+          : '<button class="btn btn-sm btn-orange" onclick="archiveProduct('+origIdx+')">Archive</button>'
+        }</td>
+      </tr>`;
+    }).join('');
+}
+
+function showAddProduct() {
+  document.getElementById('productModalTitle').textContent = 'Add Product';
+  document.getElementById('editProductIdx').value = '';
+  ['pSku','pName','pGeneric','pBrand','pPrice','pStock','pReorder','pExpiry'].forEach(id => document.getElementById(id).value = '');
+  const products = getProducts();
+  const nextNum = products.length + 1;
+  document.getElementById('pSku').value = 'SKU-' + String(nextNum).padStart(3,'0');
+  document.getElementById('productModal').classList.remove('hidden');
+}
+
+function editProduct(idx) {
+  const p = getProducts()[idx];
+  document.getElementById('productModalTitle').textContent = 'Edit Product';
+  document.getElementById('editProductIdx').value = idx;
+  document.getElementById('pSku').value = p.sku;
+  document.getElementById('pName').value = p.name;
+  document.getElementById('pGeneric').value = p.generic;
+  document.getElementById('pCategory').value = p.category;
+  document.getElementById('pBrand').value = p.brand;
+  document.getElementById('pUnit').value = p.unit;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pStock').value = getStock(p);
+  document.getElementById('pReorder').value = p.reorder;
+  document.getElementById('pExpiry').value = getEarliestExpiry(p);
+  document.getElementById('productModal').classList.remove('hidden');
+}
+
+function saveProduct() {
+  const idx = document.getElementById('editProductIdx').value;
+  const sku = document.getElementById('pSku').value.trim();
+  const name = document.getElementById('pName').value.trim();
+  const newPrice = parseFloat(document.getElementById('pPrice').value) || 0;
+  const stockVal = parseInt(document.getElementById('pStock').value) || 0;
+  const expiryVal = document.getElementById('pExpiry').value;
+
+  if (!name || !sku) { toast('Name and SKU are required!', 'error'); return; }
+  const products = getProducts();
+  const editIdx = idx !== '' ? parseInt(idx) : -1;
+  const duplicate = products.find((x, i) => x.sku === sku && i !== editIdx);
+  if (duplicate) { toast('SKU "' + sku + '" already exists!', 'error'); return; }
+
+  if (editIdx >= 0) {
+    // Editing — preserve batches, detect price change
+    const old = products[editIdx];
+    if (old.price !== newPrice) {
+      addPriceHistoryEntry(sku, name, old.price, newPrice);
+    }
+    products[editIdx] = {
+      ...old,
+      sku, name,
+      generic: document.getElementById('pGeneric').value.trim(),
+      category: document.getElementById('pCategory').value,
+      brand: document.getElementById('pBrand').value.trim(),
+      unit: document.getElementById('pUnit').value,
+      price: newPrice,
+      reorder: parseInt(document.getElementById('pReorder').value) || 0,
+      batches: old.batches || [{ id: 'B-' + Date.now(), qty: stockVal, expiry: expiryVal, supplierCost: null, receivedDate: today() }]
+    };
+    toast('Product updated!');
+  } else {
+    // New product — create initial batch
+    const p = {
+      sku, name,
+      generic: document.getElementById('pGeneric').value.trim(),
+      category: document.getElementById('pCategory').value,
+      brand: document.getElementById('pBrand').value.trim(),
+      unit: document.getElementById('pUnit').value,
+      price: newPrice,
+      reorder: parseInt(document.getElementById('pReorder').value) || 0,
+      batches: [{ id: 'B-' + Date.now(), qty: stockVal, expiry: expiryVal, supplierCost: null, receivedDate: today() }]
+    };
+    products.push(p);
+    if (stockVal > 0) {
+      addMovementEntry({ sku, productName: name, type: 'RECEIVE', qty: stockVal, batchId: p.batches[0].id, reference: 'Initial stock', reason: null, balanceAfter: stockVal });
+    }
+    toast('Product added!');
+  }
+  saveProducts(products);
+  closeModal('productModal');
+  renderCatalog();
+  autoBackupAfterChange();
+}
+
+function archiveProduct(idx) {
+  const products = getProducts();
+  const p = products[idx];
+  if (!confirm('Archive "' + p.name + '"?\n\nIt will be hidden from POS and catalog but kept for historical records.\nYou can restore it anytime.')) return;
+  p.archived = true;
+  p.archivedDate = today();
+  saveProducts(products);
+  renderCatalog();
+  toast(p.name + ' archived');
+  autoBackupAfterChange();
+}
+
+function unarchiveProduct(idx) {
+  const products = getProducts();
+  const p = products[idx];
+  delete p.archived;
+  delete p.archivedDate;
+  saveProducts(products);
+  renderCatalog();
+  toast(p.name + ' restored');
+  autoBackupAfterChange();
+}
+
+function deleteProduct(idx) {
+  const products = getProducts();
+  const p = products[idx];
+  // Check if product has transaction history
+  const txns = getTransactions();
+  const hasHistory = txns.some(t => t.items.some(i => i.sku === p.sku));
+  const hasMovements = getMovementLog().some(m => m.sku === p.sku);
+  if (hasHistory || hasMovements) {
+    toast('Cannot permanently delete "' + p.name + '" — it has transaction/movement history. It must remain archived to preserve records.', 'error');
+    return;
+  }
+  if (!confirm('Permanently delete "' + p.name + '"?\n\nThis product has NO transaction history so it can be safely removed.\n\nThis cannot be undone!')) return;
+  products.splice(idx, 1);
+  saveProducts(products);
+  renderCatalog();
+  toast(p.name + ' permanently deleted');
+  autoBackupAfterChange();
+}
+
+// ═══════════════════════════════════════
+// PRICE HISTORY VIEWER
+// ═══════════════════════════════════════
+function showPriceHistory(sku) {
+  const products = getProducts();
+  const p = products.find(x => x.sku === sku);
+  if (!p) return;
+  const history = getPriceHistory().filter(h => h.sku === sku).reverse();
+  document.getElementById('priceHistoryTitle').textContent = 'Price History — ' + esc(p.name);
+  if (history.length === 0) {
+    document.getElementById('priceHistoryContent').innerHTML =
+      '<div class="empty-state">No price changes recorded</div><div style="text-align:center;color:var(--gray);font-size:0.85rem;margin-top:8px">Current price: <strong>' + fmt(p.price) + '</strong></div>';
+  } else {
+    document.getElementById('priceHistoryContent').innerHTML =
+      '<div style="margin-bottom:12px;font-size:0.85rem">Current price: <strong>' + fmt(p.price) + '</strong></div>' +
+      '<table><thead><tr><th>Date</th><th>Time</th><th>Old Price</th><th>New Price</th></tr></thead><tbody>' +
+      history.map(h => '<tr><td>' + h.date + '</td><td>' + h.time + '</td><td>' + fmt(h.oldPrice) + '</td><td style="font-weight:700">' + fmt(h.newPrice) + '</td></tr>').join('') +
+      '</tbody></table>';
+  }
+  document.getElementById('priceHistoryModal').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════
+// BATCH VIEWER
+// ═══════════════════════════════════════
+function showBatchesModal(sku) {
+  const products = getProducts();
+  const p = products.find(x => x.sku === sku);
+  if (!p) return;
+  window._batchesModalSku = sku;
+  document.getElementById('batchesModalTitle').textContent = 'Batches — ' + esc(p.name);
+  const batches = (p.batches || []);
+  if (batches.length === 0) {
+    document.getElementById('batchesContent').innerHTML = '<div class="empty-state">No batches</div>';
+  } else {
+    const totalStock = getStock(p);
+    document.getElementById('batchesContent').innerHTML =
+      '<table><thead><tr><th>Batch ID</th><th>Qty</th><th>Expiry</th><th>Status</th><th>Cost/Unit</th><th>Received</th></tr></thead><tbody>' +
+      batches.map(b => {
+        const days = b.expiry ? daysBetween(b.expiry) : 999;
+        const bStatus = days < 0 ? '<span class="badge badge-red">EXPIRED</span>' : b.qty <= 0 ? '<span class="badge badge-red">EMPTY</span>' : days <= 90 ? '<span class="badge badge-orange">EXPIRING</span>' : '<span class="badge badge-green">OK</span>';
+        return '<tr><td style="font-size:0.75rem">' + esc(b.id.substring(0, 12)) + '</td><td style="font-weight:700">' + b.qty + '</td><td>' + (b.expiry || '-') + '</td><td>' + bStatus + '</td><td>' + (b.supplierCost ? fmt(b.supplierCost) : '-') + '</td><td style="font-size:0.75rem">' + (b.receivedDate || '-') + '</td></tr>';
+      }).join('') +
+      '</tbody></table>' +
+      '<div style="text-align:right;margin-top:8px;font-weight:700;color:var(--primary)">Total Stock: ' + totalStock + '</div>';
+  }
+  document.getElementById('batchesModal').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════════
+// RECEIVE STOCK
+// ═══════════════════════════════════════
+function showReceiveStock(preselectedSku) {
+  const products = getProducts();
+  const options = products.map(p => ({ value: p.sku, label: p.name, sub: p.sku + ' | ' + p.generic }));
+  initSearchDrop('rsProduct', options, function(v) { updateReceiveStockInfo(); }, 'Search product...');
+  if (preselectedSku) setSDValue('rsProduct', preselectedSku);
+  document.getElementById('rsQty').value = '';
+  document.getElementById('rsExpiry').value = '';
+  document.getElementById('rsCost').value = '';
+  updateReceiveStockInfo();
+  document.getElementById('receiveStockModal').classList.remove('hidden');
+}
+
+function updateReceiveStockInfo() {
+  const sku = getSDValue('rsProduct');
+  const products = getProducts();
+  const p = products.find(x => x.sku === sku);
+  if (!p) { document.getElementById('rsCurrentInfo').innerHTML = ''; return; }
+  const batchCount = (p.batches || []).length;
+  document.getElementById('rsCurrentInfo').innerHTML =
+    'Current stock: <strong>' + getStock(p) + '</strong> | Batches: <strong>' + batchCount + '</strong> | Price: <strong>' + fmt(p.price) + '</strong>';
+}
+
+function submitReceiveStock() {
+  const sku = getSDValue('rsProduct');
+  const qty = parseInt(document.getElementById('rsQty').value) || 0;
+  const expiry = document.getElementById('rsExpiry').value;
+  const cost = parseFloat(document.getElementById('rsCost').value) || null;
+  if (qty <= 0) { toast('Quantity must be greater than 0', 'error'); return; }
+  if (!expiry) { toast('Expiry date is required', 'error'); return; }
+  const products = getProducts();
+  const p = products.find(x => x.sku === sku);
+  if (!p) { toast('Product not found', 'error'); return; }
+  if (!p.batches) p.batches = [];
+  const batchId = 'B-' + Date.now();
+  p.batches.push({ id: batchId, qty, expiry, supplierCost: cost, receivedDate: today() });
+  saveProducts(products);
+  addMovementEntry({ sku, productName: p.name, type: 'RECEIVE', qty, batchId, reference: 'Stock received', reason: null, balanceAfter: getStock(p) });
+  closeModal('receiveStockModal');
+  toast('Received ' + qty + ' units of ' + p.name);
+  refreshAll();
+  autoBackupAfterChange();
+}
+
+// ═══════════════════════════════════════
+// STOCK ADJUSTMENT
+// ═══════════════════════════════════════
+function showStockAdjustment(preselectedSku) {
+  const products = getProducts();
+  const options = products.map(p => ({ value: p.sku, label: p.name, sub: p.sku + ' | ' + p.generic }));
+  initSearchDrop('adjProduct', options, function(v) { updateAdjustInfo(); }, 'Search product...');
+  if (preselectedSku) setSDValue('adjProduct', preselectedSku);
+  document.getElementById('adjNewQty').value = '';
+  document.getElementById('adjNotes').value = '';
+  updateAdjustInfo();
+  document.getElementById('adjustStockModal').classList.remove('hidden');
+}
+
+function updateAdjustInfo() {
+  const sku = getSDValue('adjProduct');
+  const products = getProducts();
+  const p = products.find(x => x.sku === sku);
+  if (!p) return;
+  document.getElementById('adjCurrentInfo').innerHTML =
+    'Current total stock: <strong>' + getStock(p) + '</strong>';
+  const batchSel = document.getElementById('adjBatch');
+  const batches = p.batches || [];
+  batchSel.innerHTML = batches.map(b =>
+    '<option value="' + b.id + '">Qty: ' + b.qty + ' | Exp: ' + (b.expiry || 'N/A') + ' (' + b.id.substring(0, 12) + ')</option>'
+  ).join('');
+}
+
+function submitStockAdjustment() {
+  const sku = getSDValue('adjProduct');
+  const batchId = document.getElementById('adjBatch').value;
+  const newQty = parseInt(document.getElementById('adjNewQty').value);
+  const reason = document.getElementById('adjReason').value;
+  const notes = document.getElementById('adjNotes').value.trim();
+  if (isNaN(newQty) || newQty < 0) { toast('Enter a valid quantity (0 or more)', 'error'); return; }
+  const products = getProducts();
+  const p = products.find(x => x.sku === sku);
+  if (!p) { toast('Product not found', 'error'); return; }
+  const batch = (p.batches || []).find(b => b.id === batchId);
+  if (!batch) { toast('Batch not found', 'error'); return; }
+  const diff = newQty - batch.qty;
+  if (diff === 0) { toast('No change in quantity', 'info'); return; }
+  batch.qty = newQty;
+  saveProducts(products);
+  addMovementEntry({
+    sku, productName: p.name, type: 'ADJUSTMENT', qty: diff,
+    batchId, reference: reason + (notes ? ' — ' + notes : ''),
+    reason, balanceAfter: getStock(p)
+  });
+  closeModal('adjustStockModal');
+  toast('Adjusted ' + p.name + ': ' + (diff > 0 ? '+' : '') + diff + ' units (' + reason + ')');
+  refreshAll();
+  autoBackupAfterChange();
+}
+
+// ═══════════════════════════════════════
+// SALES LOG
+// ═══════════════════════════════════════
+function renderSalesLog() {
+  const txns = getTransactions();
+  const from = document.getElementById('salesDateFrom')?.value;
+  const to = document.getElementById('salesDateTo')?.value;
+  const pay = document.getElementById('salesPayFilter')?.value;
+  const q = (document.getElementById('salesSearch')?.value || '').toLowerCase();
+  const filtered = txns.filter(t =>
+    (!from || t.date >= from) && (!to || t.date <= to) &&
+    (!pay || t.paymentMethod === pay) &&
+    (!q || t.id.toLowerCase().includes(q) || t.customer.toLowerCase().includes(q) || t.items.some(i => i.name.toLowerCase().includes(q)))
+  ).reverse();
+  const tbody = document.getElementById('salesTableBody');
+  if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No transactions found</td></tr>'; return; }
+  // Store transactions for receipt lookup
+  window._salesLogTxns = filtered;
+  tbody.innerHTML = filtered.map((t, idx) => {
+    const itemsSummary = t.items.map(i => esc(i.name) + ' x' + i.qty).join(', ');
+    return '<tr>' +
+      '<td><strong>' + esc(t.id) + '</strong></td><td>' + t.date + '</td><td>' + t.time + '</td><td>' + esc(t.customer) + '</td>' +
+      '<td style="font-size:0.78rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + itemsSummary.replace(/"/g,'&quot;') + '">' + itemsSummary + '</td>' +
+      '<td>' + t.totalQty + '</td><td style="font-weight:700">' + fmt(t.total) + '</td>' +
+      '<td><span class="badge badge-blue">' + esc(t.paymentMethod) + '</span></td>' +
+      '<td>' +
+        (t.voided ? '<span class="badge badge-red">VOIDED</span>' :
+          '<button class="btn btn-sm btn-outline" onclick="showReceiptByIdx(' + idx + ')">Receipt</button> ' +
+          '<button class="btn btn-sm btn-red" onclick="voidTransaction(\'' + t.id + '\')">Void</button>') +
+      '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+function voidTransaction(txnId) {
+  if (!confirm('Void transaction ' + txnId + '? This will restore inventory stock.')) return;
+  const txns = getTransactions();
+  const txn = txns.find(t => t.id === txnId);
+  if (!txn || txn.voided) { toast('Transaction not found or already voided', 'error'); return; }
+  // Restore inventory using batch deductions
+  const products = getProducts();
+  txn.items.forEach(item => {
+    restoreStock(products, item.sku, item.batchDeductions, txnId);
+  });
+  saveProducts(products);
+  // Mark as voided
+  txn.voided = true;
+  txn.voidDate = today();
+  txn.voidTime = now();
+  saveTransactions(txns);
+  renderSalesLog();
+  toast('Transaction ' + txnId + ' voided. Stock restored.', 'info');
+  autoBackupAfterChange();
+}
+
+function quickReceiptLookup() {
+  const q = (document.getElementById('salesSearch')?.value || '').trim().toUpperCase();
+  if (!q) { toast('Enter a TXN# to look up', 'error'); return; }
+  const txns = getTransactions();
+  const txn = txns.find(t => t.id.toUpperCase() === q || t.id.toUpperCase().endsWith(q));
+  if (!txn) { toast('Transaction "' + q + '" not found', 'error'); return; }
+  if (txn.voided) { toast('Transaction ' + txn.id + ' was voided', 'info'); }
+  showReceipt(txn);
+}
+
+// ═══════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════
+function renderInventory() {
+  const products = getProducts();
+  const q = (document.getElementById('invSearch')?.value || '').toLowerCase();
+  const statusFilter = document.getElementById('invFilter')?.value || '';
+
+  const inStock = products.filter(p => getStatus(p)==='In Stock').length;
+  const low = products.filter(p => getStatus(p)==='Low Stock').length;
+  const oos = products.filter(p => getStatus(p)==='Out of Stock').length;
+  const expired = products.filter(p => getStatus(p)==='Expired').length;
+  const expSoon = products.filter(p => { const d = daysBetween(getEarliestExpiry(p)); return d >= 0 && d <= 90; }).length;
+  const totalVal = products.reduce((s,p) => s + p.price * getStock(p), 0);
+
+  document.getElementById('inventoryKpis').innerHTML = `
+    <div class="kpi-card"><div class="kpi-value">${products.length}</div><div class="kpi-label">Total Products</div></div>
+    <div class="kpi-card green"><div class="kpi-value">${inStock}</div><div class="kpi-label">In Stock</div></div>
+    <div class="kpi-card orange"><div class="kpi-value">${low}</div><div class="kpi-label">Low Stock</div></div>
+    <div class="kpi-card red"><div class="kpi-value">${oos}</div><div class="kpi-label">Out of Stock</div></div>
+    <div class="kpi-card red"><div class="kpi-value">${expired}</div><div class="kpi-label">Expired</div></div>
+    <div class="kpi-card purple"><div class="kpi-value">${fmt(totalVal)}</div><div class="kpi-label">Inventory Value</div></div>
+  `;
+
+  const filtered = products.filter(p =>
+    (!q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)) &&
+    (!statusFilter || getStatus(p) === statusFilter)
+  );
+
+  document.getElementById('inventoryTableBody').innerHTML = filtered.map(p => {
+    const s = getStatus(p);
+    const expiry = getEarliestExpiry(p);
+    const stock = getStock(p);
+    const days = expiry ? daysBetween(expiry) : 999;
+    const daysText = days < 0 ? 'EXPIRED' : days + ' days';
+    return `<tr>
+      <td>${esc(p.sku)}</td><td><strong>${esc(p.name)}</strong></td>
+      <td style="font-weight:700;cursor:pointer;${stock<=p.reorder?'color:var(--red)':''}" onclick="showBatchesModal('${p.sku}')">${stock}</td>
+      <td>${p.reorder}</td><td>${statusBadge(s)}</td><td>${expiry}</td>
+      <td style="${days<=90?'color:var(--orange);font-weight:700':''}">${daysText}</td>
+      <td>${fmt(p.price * stock)}</td>
+      <td><button class="btn btn-sm btn-green" onclick="showReceiveStock('${p.sku}')" style="margin-right:4px">+In</button><button class="btn btn-sm btn-orange" onclick="showStockAdjustment('${p.sku}')">Adj</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function renderDashboard() {
+  const txns = getTransactions().filter(t => !t.voided);
+  const products = getProducts();
+  const todayStr = today();
+  const weekAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString().split('T')[0];
+  const monthStart = todayStr.substring(0,8) + '01';
+
+  const todaySales = txns.filter(t => t.date === todayStr).reduce((s,t) => s + t.total, 0);
+  const weekSales = txns.filter(t => t.date >= weekAgo).reduce((s,t) => s + t.total, 0);
+  const monthSales = txns.filter(t => t.date >= monthStart).reduce((s,t) => s + t.total, 0);
+  const avgTxn = txns.length > 0 ? txns.reduce((s,t) => s + t.total, 0) / txns.length : 0;
+
+  document.getElementById('dashKpis').innerHTML = `
+    <div class="kpi-card green"><div class="kpi-value">${fmt(todaySales)}</div><div class="kpi-label">Today's Sales</div></div>
+    <div class="kpi-card"><div class="kpi-value">${fmt(weekSales)}</div><div class="kpi-label">This Week</div></div>
+    <div class="kpi-card purple"><div class="kpi-value">${fmt(monthSales)}</div><div class="kpi-label">This Month</div></div>
+    <div class="kpi-card"><div class="kpi-value">${txns.length}</div><div class="kpi-label">Total Transactions</div></div>
+    <div class="kpi-card orange"><div class="kpi-value">${fmt(avgTxn)}</div><div class="kpi-label">Avg Transaction</div></div>
+  `;
+
+  // Payment method chart
+  drawPieChart('chartPayment', getPaymentData(txns));
+  // Category chart
+  drawPieChart('chartCategory', getCategoryData(txns));
+  // Daily sales chart
+  drawBarChart('chartDaily', getDailyData(txns));
+  // Top sellers
+  renderTopSellers(txns);
+  // Alerts
+  renderAlerts(products);
+}
+
+function getPaymentData(txns) {
+  const data = {};
+  txns.forEach(t => { data[t.paymentMethod] = (data[t.paymentMethod]||0) + t.total; });
+  return Object.entries(data).map(([label, value]) => ({label, value}));
+}
+
+function getCategoryData(txns) {
+  const data = {};
+  txns.forEach(t => t.items.forEach(i => {
+    const p = getProducts().find(x => x.sku === i.sku);
+    const cat = p ? p.category : 'Other';
+    data[cat] = (data[cat]||0) + i.total;
+  }));
+  return Object.entries(data).map(([label, value]) => ({label, value}));
+}
+
+function getDailyData(txns) {
+  const data = {};
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(Date.now() - i*24*60*60*1000).toISOString().split('T')[0];
+    data[d] = 0;
+  }
+  txns.forEach(t => { if (data.hasOwnProperty(t.date)) data[t.date] += t.total; });
+  return Object.entries(data).map(([label, value]) => ({label: label.substring(5), value}));
+}
+
+function renderTopSellers(txns) {
+  const items = {};
+  txns.forEach(t => t.items.forEach(i => { items[i.name] = (items[i.name]||0) + i.qty; }));
+  const sorted = Object.entries(items).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const el = document.getElementById('topSellers');
+  if (sorted.length === 0) { el.innerHTML = '<div class="empty-state">No sales data yet</div>'; return; }
+  const max = sorted[0][1];
+  el.innerHTML = sorted.map(([name, qty], i) => `
+    <div style="display:flex;align-items:center;gap:8px;margin:6px 0">
+      <span style="min-width:20px;font-weight:700;color:var(--gray);font-size:0.8rem">${i+1}</span>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:0.85rem">${esc(name)}</div>
+        <div style="background:var(--light-gray);border-radius:4px;height:8px;margin-top:2px">
+          <div style="background:linear-gradient(90deg,var(--primary),var(--primary-light));height:100%;border-radius:4px;width:${qty/max*100}%"></div>
+        </div>
+      </div>
+      <span style="font-weight:700;color:var(--primary);font-size:0.85rem">${qty} sold</span>
+    </div>
+  `).join('');
+}
+
+function renderAlerts(products) {
+  const alerts = [];
+  products.forEach(p => {
+    const s = getStatus(p);
+    const pExpiry = getEarliestExpiry(p);
+    const pStock = getStock(p);
+    if (s === 'Expired') alerts.push({ text: `${esc(p.name)} — EXPIRED (${pExpiry})`, critical: true });
+    else if (s === 'Out of Stock') alerts.push({ text: `${esc(p.name)} — OUT OF STOCK`, critical: true });
+    else if (s === 'Low Stock') alerts.push({ text: `${esc(p.name)} — Low stock: ${pStock} units (reorder at ${p.reorder})`, critical: false });
+    else {
+      const d = pExpiry ? daysBetween(pExpiry) : 999;
+      if (d <= 90) alerts.push({ text: `${esc(p.name)} — Expiring in ${d} days (${pExpiry})`, critical: false });
+    }
+  });
+  const el = document.getElementById('dashAlerts');
+  if (alerts.length === 0) { el.innerHTML = '<div class="empty-state">No alerts</div>'; return; }
+  el.innerHTML = alerts.map(a => `<div class="alert-item ${a.critical?'critical':''}">${a.text}</div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// STOCK TAB
+// ═══════════════════════════════════════
+function renderStockTab() {
+  document.getElementById('balancePeriodDate').value = today();
+  const monthEl = document.getElementById('balancePeriodMonth');
+  monthEl.value = today().substring(0, 7);
+  toggleBalancePeriodInputs();
+  renderBalanceReport();
+  renderMovementLog();
+}
+
+function toggleBalancePeriodInputs() {
+  const type = document.getElementById('balancePeriodType').value;
+  document.getElementById('balancePeriodDate').style.display = type === 'daily' ? '' : 'none';
+  document.getElementById('balancePeriodMonth').style.display = type === 'monthly' ? '' : 'none';
+}
+
+function renderBalanceReport() {
+  toggleBalancePeriodInputs();
+  const type = document.getElementById('balancePeriodType').value;
+  let period, periodStart, periodEnd;
+  if (type === 'daily') {
+    period = document.getElementById('balancePeriodDate').value || today();
+    periodStart = period;
+    periodEnd = period;
+  } else {
+    const monthVal = document.getElementById('balancePeriodMonth').value || today().substring(0, 7);
+    period = monthVal;
+    periodStart = monthVal + '-01';
+    const y = parseInt(monthVal.split('-')[0]), m = parseInt(monthVal.split('-')[1]);
+    periodEnd = new Date(y, m, 0).toISOString().split('T')[0];
+  }
+
+  const snaps = getBalanceSnaps();
+  const snap = snaps.find(s => s.type === type && s.period === period);
+  const movements = getMovementLog().filter(m => m.date >= periodStart && m.date <= periodEnd);
+  const products = getProducts();
+
+  const tbody = document.getElementById('balanceTableBody');
+  if (products.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No products</td></tr>';
+    return;
+  }
+
+  let totalStart = 0, totalRcv = 0, totalSold = 0, totalAdj = 0, totalEnd = 0;
+
+  tbody.innerHTML = products.map(p => {
+    const starting = snap ? (snap.balances[p.sku] || 0) : getStock(p);
+    const prodMoves = movements.filter(m => m.sku === p.sku);
+    const received = prodMoves.filter(m => m.type === 'RECEIVE').reduce((s, m) => s + m.qty, 0);
+    const sold = Math.abs(prodMoves.filter(m => m.type === 'SALE').reduce((s, m) => s + m.qty, 0));
+    const voids = prodMoves.filter(m => m.type === 'VOID').reduce((s, m) => s + m.qty, 0);
+    const adjustments = prodMoves.filter(m => m.type === 'ADJUSTMENT').reduce((s, m) => s + m.qty, 0);
+    const ending = starting + received - sold + voids + adjustments;
+
+    totalStart += starting; totalRcv += received; totalSold += sold; totalAdj += (voids + adjustments); totalEnd += ending;
+
+    return '<tr><td>' + esc(p.sku) + '</td><td><strong>' + esc(p.name) + '</strong></td>' +
+      '<td>' + starting + '</td><td style="color:var(--green)">' + (received > 0 ? '+' + received : '0') + '</td>' +
+      '<td style="color:var(--red)">' + (sold > 0 ? '-' + sold : '0') + '</td>' +
+      '<td style="color:var(--orange)">' + (voids + adjustments !== 0 ? (voids + adjustments > 0 ? '+' : '') + (voids + adjustments) : '0') + '</td>' +
+      '<td style="font-weight:700">' + ending + '</td></tr>';
+  }).join('') +
+  '<tr style="background:var(--light-gray);font-weight:700"><td colspan="2">TOTALS</td>' +
+  '<td>' + totalStart + '</td><td style="color:var(--green)">+' + totalRcv + '</td>' +
+  '<td style="color:var(--red)">-' + totalSold + '</td>' +
+  '<td style="color:var(--orange)">' + (totalAdj >= 0 ? '+' : '') + totalAdj + '</td>' +
+  '<td>' + totalEnd + '</td></tr>';
+}
+
+function renderMovementLog() {
+  const log = getMovementLog();
+  const typeFilter = document.getElementById('mlTypeFilter')?.value || '';
+  const q = (document.getElementById('mlSearch')?.value || '').toLowerCase();
+  const from = document.getElementById('mlDateFrom')?.value;
+  const to = document.getElementById('mlDateTo')?.value;
+
+  const filtered = log.filter(m =>
+    (!typeFilter || m.type === typeFilter) &&
+    (!q || (m.productName || '').toLowerCase().includes(q) || (m.sku || '').toLowerCase().includes(q) || (m.reference || '').toLowerCase().includes(q)) &&
+    (!from || m.date >= from) && (!to || m.date <= to)
+  ).reverse();
+
+  const tbody = document.getElementById('movementLogBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No movement records found</td></tr>';
+    return;
+  }
+
+  const typeBadges = {
+    SALE: 'badge-red', VOID: 'badge-orange', RECEIVE: 'badge-green', ADJUSTMENT: 'badge-blue'
+  };
+
+  tbody.innerHTML = filtered.slice(0, 200).map(m => {
+    const qtyStr = (m.qty > 0 ? '+' : '') + m.qty;
+    const qtyColor = m.qty > 0 ? 'color:var(--green)' : 'color:var(--red)';
+    return '<tr><td>' + m.date + '</td><td>' + (m.time || '') + '</td>' +
+      '<td>' + esc(m.sku || '') + '</td><td><strong>' + esc(m.productName || '') + '</strong></td>' +
+      '<td><span class="badge ' + (typeBadges[m.type] || 'badge-blue') + '">' + m.type + '</span></td>' +
+      '<td style="font-weight:700;' + qtyColor + '">' + qtyStr + '</td>' +
+      '<td style="font-size:0.75rem">' + esc((m.batchId || '').substring(0, 12)) + '</td>' +
+      '<td style="font-size:0.78rem">' + esc(m.reference || '') + '</td>' +
+      '<td style="font-weight:700">' + (m.balanceAfter != null ? m.balanceAfter : '-') + '</td></tr>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// SIMPLE CHARTS (Canvas)
+// ═══════════════════════════════════════
+const COLORS = ['#2980B9','#27AE60','#E74C3C','#F39C12','#8E44AD','#1ABC9C','#E67E22','#3498DB'];
+
+function drawPieChart(canvasId, data) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.parentElement.clientWidth;
+  const h = 250;
+  canvas.width = w; canvas.height = h;
+  ctx.clearRect(0,0,w,h);
+  if (data.length === 0) { ctx.fillStyle='#999'; ctx.font='14px Segoe UI'; ctx.textAlign='center'; ctx.fillText('No data yet',w/2,h/2); return; }
+  const total = data.reduce((s,d) => s + d.value, 0);
+  const cx = w * 0.35, cy = h/2, r = Math.min(cx-20, cy-20);
+  let start = -Math.PI/2;
+  data.forEach((d,i) => {
+    const slice = (d.value/total) * Math.PI * 2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,start+slice); ctx.closePath();
+    ctx.fillStyle = COLORS[i%COLORS.length]; ctx.fill();
+    start += slice;
+  });
+  // Legend
+  let ly = 20;
+  data.forEach((d,i) => {
+    ctx.fillStyle = COLORS[i%COLORS.length];
+    ctx.fillRect(w*0.7, ly, 12, 12);
+    ctx.fillStyle = '#2C3E50'; ctx.font = '11px Segoe UI'; ctx.textAlign = 'left';
+    ctx.fillText(`${d.label}: ${fmt(d.value)}`, w*0.7+18, ly+10);
+    ly += 22;
+  });
+}
+
+function drawBarChart(canvasId, data) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.parentElement.clientWidth;
+  const h = 250;
+  canvas.width = w; canvas.height = h;
+  ctx.clearRect(0,0,w,h);
+  if (data.length === 0) return;
+  const max = Math.max(...data.map(d=>d.value), 1);
+  const barW = (w - 60) / data.length - 4;
+  const chartH = h - 50;
+  // Grid lines
+  ctx.strokeStyle = '#ECF0F1'; ctx.lineWidth = 1;
+  for (let i=0;i<=4;i++) {
+    const y = 10 + (chartH/4)*i;
+    ctx.beginPath(); ctx.moveTo(50,y); ctx.lineTo(w-10,y); ctx.stroke();
+    ctx.fillStyle='#999'; ctx.font='10px Segoe UI'; ctx.textAlign='right';
+    ctx.fillText(fmt(max - (max/4)*i), 48, y+4);
+  }
+  data.forEach((d,i) => {
+    const x = 55 + i * (barW + 4);
+    const barH = (d.value / max) * chartH;
+    const y = 10 + chartH - barH;
+    ctx.fillStyle = '#2980B9'; ctx.fillRect(x, y, barW, barH);
+    ctx.fillStyle = '#666'; ctx.font = '9px Segoe UI'; ctx.textAlign = 'center';
+    ctx.fillText(d.label, x + barW/2, h - 10);
+  });
+}
+
+// ═══════════════════════════════════════
+// BACKUP & SETTINGS
+// ═══════════════════════════════════════
+function renderBackup() {
+  const products = getProducts();
+  const txns = getTransactions();
+  const movLog = getMovementLog();
+  const totalSales = txns.filter(t => !t.voided).reduce((s,t) => s + t.total, 0);
+  const allData = { products, transactions: txns, movementLog: movLog, priceHistory: getPriceHistory(), balanceSnapshots: getBalanceSnaps() };
+  document.getElementById('dataSummary').innerHTML = `
+    Products: <strong>${products.length}</strong> |
+    Transactions: <strong>${txns.length}</strong> |
+    Movement Log: <strong>${movLog.length}</strong> entries |
+    Total Sales: <strong>${fmt(totalSales)}</strong> |
+    Data Size: <strong>${(new Blob([JSON.stringify(allData)]).size/1024).toFixed(1)} KB</strong>
+  `;
+  const s = getSettings();
+  document.getElementById('settingStoreName').value = s.storeName;
+  document.getElementById('settingVat').value = s.vatRate;
+  // Auto-backup status
+  const abStatus = document.getElementById('autoBackupStatus');
+  if (_autoBackupDirHandle) {
+    abStatus.innerHTML = '<div style="padding:8px 12px;background:#EAFAF1;border-radius:6px;color:var(--green);font-weight:600">Active — Saving automatically after every transaction</div>';
+    document.getElementById('btnSetupAutoBackup').textContent = 'Change Backup Folder';
+  } else if (localStorage.getItem(AUTO_BACKUP_KEY) === 'true') {
+    abStatus.innerHTML = '<div style="padding:8px 12px;background:#FEF9E7;border-radius:6px;color:var(--orange);font-weight:600">Disconnected — Click "Enable Auto-Backup" to reconnect folder access</div>';
+  } else {
+    abStatus.innerHTML = '<div style="padding:8px 12px;background:#FDEDEC;border-radius:6px;color:var(--red);font-weight:600">Not enabled — Your data is only in browser storage and could be lost</div>';
+  }
+}
+
+function saveSettings() {
+  const s = getSettings();
+  s.storeName = document.getElementById('settingStoreName').value;
+  s.vatRate = parseFloat(document.getElementById('settingVat').value) || 12;
+  saveSettingsData(s);
+  document.querySelector('.header h1').textContent = s.storeName;
+  toast('Settings saved!');
+}
+
+function exportBackup() {
+  const data = {
+    version: '2.0',
+    exportDate: new Date().toISOString(),
+    products: getProducts(),
+    transactions: getTransactions(),
+    settings: getSettings(),
+    movementLog: getMovementLog(),
+    priceHistory: getPriceHistory(),
+    balanceSnapshots: getBalanceSnaps()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `PharmacyPOS_Backup_${today()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  const s = getSettings();
+  s.lastBackupTxnCount = getTransactions().length;
+  saveSettingsData(s);
+  toast('Backup exported!');
+}
+
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.products || !data.transactions) throw new Error('Invalid backup file');
+      if (!confirm(`Import backup from ${data.exportDate || 'unknown date'}?\n\nThis will replace ALL current data:\n- ${data.products.length} products\n- ${data.transactions.length} transactions\n\nThis cannot be undone!`)) return;
+      saveProducts(data.products);
+      saveTransactions(data.transactions);
+      if (data.settings) saveSettingsData(data.settings);
+      if (data.movementLog) saveMovementLog(data.movementLog);
+      if (data.priceHistory) savePriceHistory(data.priceHistory);
+      if (data.balanceSnapshots) saveBalanceSnaps(data.balanceSnapshots);
+      migrateData();
+      captureBalanceSnapshot();
+      updateTxnBadge();
+      toast('Backup imported successfully!');
+      renderBackup();
+    } catch(err) { toast('Invalid backup file: ' + err.message, 'error'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function exportCSV() {
+  const txns = getTransactions();
+  if (txns.length === 0) { toast('No transactions to export', 'error'); return; }
+  let csv = 'TXN#,Date,Time,Customer,Items,Total Qty,Subtotal,Discount Type,Discount Amt,Net,VAT,Grand Total,Payment,Tendered,Change\n';
+  txns.forEach(t => {
+    const items = t.items.map(i => i.name+' x'+i.qty).join('; ');
+    csv += `"${t.id}","${t.date}","${t.time}","${t.customer}","${items}",${t.totalQty},${t.subtotal.toFixed(2)},"${t.discountType}",${t.discountAmt.toFixed(2)},${t.net.toFixed(2)},${t.vat.toFixed(2)},${t.total.toFixed(2)},"${t.paymentMethod}",${t.tendered.toFixed(2)},${t.change.toFixed(2)}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `PharmacyPOS_Sales_${today()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exported!');
+}
+
+function resetAllData() {
+  Object.values(KEYS).forEach(k => localStorage.removeItem(k));
+  initData();
+  updateTxnBadge();
+  toast('All data reset to defaults');
+  renderBackup();
+}
+
+// ═══════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// Close search results when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.pos-search')) {
+    document.getElementById('searchResults')?.classList.remove('show');
+  }
+});
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', function(e) { if (e.target === this) this.classList.add('hidden'); });
+});
+
+// ═══════════════════════════════════════
+// BACKUP REMINDER
+// ═══════════════════════════════════════
+const BACKUP_INTERVAL = 50;
+function checkBackupReminder() {
+  const s = getSettings();
+  const txnCount = getTransactions().length;
+  const sinceBackup = txnCount - (s.lastBackupTxnCount || 0);
+  if (sinceBackup >= BACKUP_INTERVAL) {
+    if (confirm('You have ' + sinceBackup + ' transactions since your last backup.\n\nWould you like to export a backup now?')) {
+      exportBackup();
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// AUTO-BACKUP (File System Access API)
+// ═══════════════════════════════════════
+let _autoBackupDirHandle = null;
+const AUTO_BACKUP_KEY = 'pharmacyPOS_autoBackupEnabled';
+
+function getAllDataForBackup() {
+  return {
+    version: '2.0',
+    autoBackupDate: new Date().toISOString(),
+    products: getProducts(),
+    transactions: getTransactions(),
+    settings: getSettings(),
+    movementLog: getMovementLog(),
+    priceHistory: getPriceHistory(),
+    balanceSnapshots: getBalanceSnaps()
+  };
+}
+
+async function setupAutoBackup() {
+  if (!window.showDirectoryPicker) {
+    toast('Your browser does not support auto-backup. Use Chrome or Edge.', 'error');
+    return;
+  }
+  try {
+    _autoBackupDirHandle = await window.showDirectoryPicker({ mode: 'readwrite', startIn: 'documents' });
+    // Verify we can write
+    await writeAutoBackup(true);
+    localStorage.setItem(AUTO_BACKUP_KEY, 'true');
+    toast('Auto-backup enabled! Saves after every transaction.');
+    renderBackup();
+  } catch (e) {
+    if (e.name !== 'AbortError') toast('Failed to set up auto-backup: ' + e.message, 'error');
+  }
+}
+
+async function writeAutoBackup(silent) {
+  if (!_autoBackupDirHandle) return;
+  try {
+    const data = JSON.stringify(getAllDataForBackup(), null, 2);
+    // Write latest backup (always overwritten)
+    const latestFile = await _autoBackupDirHandle.getFileHandle('PharmacyPOS_latest.json', { create: true });
+    const latestStream = await latestFile.createWritable();
+    await latestStream.write(data);
+    await latestStream.close();
+    // Write daily rotating backup
+    const dailyName = 'PharmacyPOS_' + today() + '.json';
+    const dailyFile = await _autoBackupDirHandle.getFileHandle(dailyName, { create: true });
+    const dailyStream = await dailyFile.createWritable();
+    await dailyStream.write(data);
+    await dailyStream.close();
+    if (!silent) toast('Auto-backup saved', 'info');
+  } catch (e) {
+    console.error('Auto-backup failed:', e);
+    // Permission may have been revoked, try to re-request
+    if (e.name === 'NotAllowedError') {
+      _autoBackupDirHandle = null;
+      localStorage.removeItem(AUTO_BACKUP_KEY);
+      toast('Auto-backup permission lost. Please re-enable in Backup & Settings.', 'error');
+    }
+  }
+}
+
+async function reconnectAutoBackup() {
+  // Try to reconnect on page load if previously enabled
+  if (localStorage.getItem(AUTO_BACKUP_KEY) !== 'true') return;
+  // Can't auto-reconnect without user gesture — show a subtle prompt
+  const banner = document.createElement('div');
+  banner.id = 'autoBackupBanner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:var(--orange);color:#fff;text-align:center;padding:10px;z-index:3000;font-weight:600;font-size:0.85rem;cursor:pointer';
+  banner.textContent = 'Auto-backup needs to reconnect. Click here to re-authorize folder access.';
+  banner.onclick = async function() {
+    try {
+      _autoBackupDirHandle = await window.showDirectoryPicker({ mode: 'readwrite', startIn: 'documents' });
+      banner.remove();
+      toast('Auto-backup reconnected!');
+    } catch(e) {
+      if (e.name !== 'AbortError') toast('Could not reconnect: ' + e.message, 'error');
+    }
+  };
+  document.body.appendChild(banner);
+}
+
+async function autoBackupAfterChange() {
+  if (_autoBackupDirHandle) await writeAutoBackup(true);
+}
+
+async function restoreFromAutoBackup() {
+  if (!window.showDirectoryPicker) {
+    toast('Your browser does not support this feature. Use Chrome or Edge.', 'error');
+    return;
+  }
+  try {
+    const dirHandle = await window.showDirectoryPicker({ mode: 'read', startIn: 'documents' });
+    // List available backups
+    const files = [];
+    for await (const [name, handle] of dirHandle.entries()) {
+      if (name.startsWith('PharmacyPOS_') && name.endsWith('.json')) {
+        files.push({ name, handle });
+      }
+    }
+    if (files.length === 0) { toast('No backup files found in this folder', 'error'); return; }
+    files.sort((a, b) => b.name.localeCompare(a.name));
+    // Show picker
+    const choice = prompt('Available backups:\n\n' + files.map((f, i) => (i + 1) + '. ' + f.name).join('\n') + '\n\nEnter number to restore (or cancel):');
+    if (!choice) return;
+    const idx = parseInt(choice) - 1;
+    if (idx < 0 || idx >= files.length) { toast('Invalid selection', 'error'); return; }
+    const file = await files[idx].handle.getFile();
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!data.products || !data.transactions) throw new Error('Invalid backup file');
+    if (!confirm('Restore from "' + files[idx].name + '"?\n\nBackup date: ' + (data.autoBackupDate || data.exportDate || 'unknown') + '\nProducts: ' + data.products.length + '\nTransactions: ' + data.transactions.length + '\n\nThis will replace ALL current data!')) return;
+    saveProducts(data.products);
+    saveTransactions(data.transactions);
+    if (data.settings) saveSettingsData(data.settings);
+    if (data.movementLog) saveMovementLog(data.movementLog);
+    if (data.priceHistory) savePriceHistory(data.priceHistory);
+    if (data.balanceSnapshots) saveBalanceSnaps(data.balanceSnapshots);
+    migrateData();
+    captureBalanceSnapshot();
+    updateTxnBadge();
+    toast('Data restored from ' + files[idx].name + '!');
+    renderBackup();
+  } catch (e) {
+    if (e.name !== 'AbortError') toast('Restore failed: ' + e.message, 'error');
+  }
+}
+
+async function tryAutoRestore() {
+  // If localStorage is completely empty (no products, no transactions), check if user wants to restore
+  const hasProducts = loadData(KEYS.products);
+  const hasTxns = loadData(KEYS.transactions);
+  if (hasProducts || hasTxns) return; // Data exists, nothing to restore
+  // Check if auto-backup was previously enabled
+  if (localStorage.getItem(AUTO_BACKUP_KEY) === 'true') {
+    if (confirm('Your data appears to be empty, but auto-backup was previously enabled.\n\nWould you like to restore from your backup folder?')) {
+      await restoreFromAutoBackup();
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════
+document.addEventListener('keydown', function(e) {
+  // Escape — close any open modal
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(m => m.classList.add('hidden'));
+    document.getElementById('searchResults')?.classList.remove('show');
+  }
+  // F2 — focus POS search bar
+  if (e.key === 'F2') {
+    e.preventDefault();
+    switchTab('pos');
+    document.getElementById('posSearch')?.focus();
+  }
+  // F4 — complete sale (when not in an input/modal)
+  if (e.key === 'F4' && !e.target.closest('.modal')) {
+    e.preventDefault();
+    if (cart.length > 0) completeSale();
+  }
+});
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+(async function() {
+  await tryAutoRestore();
+  initData();
+  updateTxnBadge();
+  renderPosAlerts();
+  reconnectAutoBackup();
+})();
+</script>
+</body>
+</html>
