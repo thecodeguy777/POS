@@ -279,7 +279,7 @@ tr:nth-child(even){background:rgba(0,0,0,0.015)}
       <input type="text" id="catalogSearch" placeholder="Search products..." oninput="renderCatalog()" style="flex:1">
       <select id="catalogFilter" onchange="renderCatalog()">
         <option value="">All Categories</option>
-        <option>OTC</option><option>Prescription</option><option>Supplement</option>
+        <option>Generic</option><option>Branded</option>
       </select>
       <label style="display:flex;align-items:center;gap:4px;font-size:0.8rem;cursor:pointer;margin:0"><input type="checkbox" id="showArchived" onchange="renderCatalog()"> Show Archived</label>
     </div>
@@ -477,7 +477,7 @@ tr:nth-child(even){background:rgba(0,0,0,0.015)}
       <div class="form-row">
         <div class="form-group"><label>SKU</label><input type="text" id="pSku" placeholder="SKU-036"></div>
         <div class="form-group"><label>Category</label>
-          <select id="pCategory"><option>OTC</option><option>Prescription</option><option>Supplement</option></select>
+          <select id="pCategory"><option>Generic</option><option>Branded</option></select>
         </div>
       </div>
       <div class="form-group"><label>Medicine Name</label><input type="text" id="pName" placeholder="e.g. Biogesic"></div>
